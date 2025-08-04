@@ -8,65 +8,127 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Estilos para o modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 90%;
+      max-height: 90%;
+      overflow-y: auto;
+      position: relative;
+    }
+    .modal-close-button {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-6 font-sans">
   <h1 class="text-3xl font-bold mb-6 text-gray-800">AsafeBroker Dashboard</h1>
-  <!-- Filtros -->
-  <section class="mb-6 flex flex-wrap gap-6 items-end">
-    <div>
-      <label for="startDate" class="block text-gray-700 font-semibold mb-1">Data início</label>
-      <input type="date" id="startDate" class="border rounded px-3 py-2" />
+
+  <!-- Filtros e Botão de Configuração de Colunas -->
+  <section class="mb-6 flex flex-wrap gap-6 items-end justify-between">
+    <div class="flex flex-wrap gap-6 items-end">
+      <div>
+        <label for="startDate" class="block text-gray-700 font-semibold mb-1">Data início</label>
+        <input type="date" id="startDate" class="border rounded px-3 py-2" />
+      </div>
+      <div>
+        <label for="endDate" class="block text-gray-700 font-semibold mb-1">Data fim</label>
+        <input type="date" id="endDate" class="border rounded px-3 py-2" />
+      </div>
+      <div>
+        <label for="orderBy" class="block text-gray-700 font-semibold mb-1">Ordenar por</label>
+        <select id="orderBy" class="border rounded px-3 py-2">
+          <option value="amount">Valor</option>
+          <option value="createdAt">Data criação</option>
+          <option value="approvedAt">Data aprovação</option>
+          <option value="status">Status</option>
+        </select>
+      </div>
+      <div>
+        <label for="orderDirection" class="block text-gray-700 font-semibold mb-1">Direção</label>
+        <select id="orderDirection" class="border rounded px-3 py-2">
+          <option value="DESC">Descendente</option>
+          <option value="ASC">Ascendente</option>
+        </select>
+      </div>
+      <button id="btnFilter" class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">Filtrar</button>
     </div>
-    <div>
-      <label for="endDate" class="block text-gray-700 font-semibold mb-1">Data fim</label>
-      <input type="date" id="endDate" class="border rounded px-3 py-2" />
-    </div>
-    <div>
-      <label for="orderBy" class="block text-gray-700 font-semibold mb-1">Ordenar por</label>
-      <select id="orderBy" class="border rounded px-3 py-2">
-        <option value="amount">Valor</option>
-        <option value="createdAt">Data criação</option>
-        <option value="approvedAt">Data aprovação</option>
-        <option value="status">Status</option>
-      </select>
-    </div>
-    <div>
-      <label for="orderDirection" class="block text-gray-700 font-semibold mb-1">Direção</label>
-      <select id="orderDirection" class="border rounded px-3 py-2">
-        <option value="DESC">Descendente</option>
-        <option value="ASC">Ascendente</option>
-      </select>
-    </div>
-    <button id="btnFilter" class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">Filtrar</button>
+    <button id="btnConfigureColumns" class="bg-gray-600 text-white px-5 py-2 rounded hover:bg-gray-700 transition">Configurar Colunas</button>
   </section>
+
   <!-- Big Cards -->
   <section id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></section>
+
   <!-- Gráfico -->
   <section class="bg-white p-6 rounded shadow mb-8">
     <h2 class="text-xl font-semibold mb-4">Depósitos por Dia</h2>
     <canvas id="depositChart" height="100"></canvas>
   </section>
+
   <!-- Tabela -->
   <section class="overflow-x-auto bg-white rounded shadow mb-6">
     <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-mail</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Depositado (R$)</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Aprovação</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-        </tr>
+      <thead class="bg-gray-100" id="dataTableHead">
+        <!-- Cabeçalho da tabela será renderizado dinamicamente aqui -->
       </thead>
       <tbody id="dataTableBody" class="divide-y divide-gray-200"></tbody>
     </table>
   </section>
+
   <!-- Paginação -->
   <section class="flex justify-center gap-4 items-center">
     <button id="prevPage" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50" disabled>Anterior</button>
     <span id="pageInfo" class="font-semibold"></span>
     <button id="nextPage" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50" disabled>Próximo</button>
   </section>
+
+  <!-- Modal de Configuração de Colunas -->
+  <div id="columnConfigModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <span class="modal-close-button" id="closeModalBtn">&times;</span>
+      <h2 class="text-2xl font-bold mb-4">Configurar Colunas da Tabela</h2>
+
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-2">Colunas Visíveis</h3>
+        <div id="selectedColumnsList" class="space-y-2">
+          <!-- Colunas selecionadas e reordenáveis serão renderizadas aqui -->
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Colunas Disponíveis</h3>
+        <div id="availableColumnsCheckboxes" class="grid grid-cols-2 gap-2">
+          <!-- Checkboxes para todas as colunas disponíveis serão renderizadas aqui -->
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-4">
+        <button id="cancelColumnConfigBtn" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancelar</button>
+        <button id="saveColumnConfigBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Salvar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const startDate = document.getElementById("startDate");
@@ -74,6 +136,7 @@
       const orderBy = document.getElementById("orderBy");
       const orderDirection = document.getElementById("orderDirection");
       const btnFilter = document.getElementById("btnFilter");
+      const dataTableHead = document.getElementById("dataTableHead"); // Novo
       const dataTableBody = document.getElementById("dataTableBody");
       const summaryCards = document.getElementById("summaryCards");
       const pageInfo = document.getElementById("pageInfo");
@@ -83,10 +146,168 @@
       let chartInstance;
       let currentPage = 1;
       let lastPage = 1;
+
+      // Elementos do Modal
+      const btnConfigureColumns = document.getElementById("btnConfigureColumns");
+      const columnConfigModal = document.getElementById("columnConfigModal");
+      const closeModalBtn = document.getElementById("closeModalBtn");
+      const saveColumnConfigBtn = document.getElementById("saveColumnConfigBtn");
+      const cancelColumnConfigBtn = document.getElementById("cancelColumnConfigBtn");
+      const selectedColumnsList = document.getElementById("selectedColumnsList");
+      const availableColumnsCheckboxes = document.getElementById("availableColumnsCheckboxes");
+
       // Datas padrão: 1º Jan até hoje
       const today = new Date().toISOString().split("T")[0];
       startDate.value = "2025-01-01";
       endDate.value = today;
+
+      // --- Configuração de Colunas ---
+      const availableColumns = [
+        { key: 'id', label: 'ID Depósito' },
+        { key: 'user.name', label: 'Nome' },
+        { key: 'user.email', label: 'E-mail' },
+        { key: 'amount', label: 'Valor Depositado (R$)' },
+        { key: 'amountFrom', label: 'Valor Origem' },
+        { key: 'currencyTo', label: 'Moeda Destino' },
+        { key: 'currencyFrom', label: 'Moeda Origem' },
+        { key: 'method', label: 'Método' },
+        { key: 'provider', label: 'Provedor' },
+        { key: 'status', label: 'Status' },
+        { key: 'approvedAt', label: 'Data Aprovação' },
+        { key: 'createdAt', label: 'Data Criação' },
+        { key: 'updatedAt', label: 'Última Atualização' },
+        { key: 'user.phone', label: 'Telefone Usuário' },
+        { key: 'user.country', label: 'País Usuário' },
+        { key: 'user.nickname', label: 'Nickname Usuário' },
+        { key: 'user.lastLoginAt', label: 'Último Login Usuário' },
+      ];
+
+      // Colunas padrão visíveis e na ordem inicial
+      let selectedColumnKeys = [
+        'user.name',
+        'user.email',
+        'amount',
+        'approvedAt',
+        'status',
+      ];
+
+      // Função auxiliar para acessar valores aninhados
+      function getNestedValue(obj, path) {
+        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+      }
+
+      // Função para formatar valores de célula
+      function formatCellValue(key, value) {
+        if (value === null || value === undefined) return '';
+
+        if (key.includes('amount') && typeof value === 'number') {
+          return `R$ ${value.toFixed(2)}`;
+        }
+        if (key.includes('At') && typeof value === 'string') {
+          try {
+            return new Date(value).toLocaleString();
+          } catch (e) {
+            return value; // Retorna o valor original se a data for inválida
+          }
+        }
+        if (key === 'status' && typeof value === 'string') {
+          return value.toLowerCase();
+        }
+        if (key === 'user.email' && typeof value === 'string') {
+          return `<a href="mailto:${value}" class="text-blue-600 underline">${value}</a>`;
+        }
+        return value;
+      }
+
+      function renderColumnConfigModal() {
+        selectedColumnsList.innerHTML = '';
+        availableColumnsCheckboxes.innerHTML = '';
+
+        // Renderizar colunas selecionadas (com botões de reordenação)
+        selectedColumnKeys.forEach((key, index) => {
+          const column = availableColumns.find(col => col.key === key);
+          if (!column) return; // Caso a chave não seja encontrada
+
+          const div = document.createElement('div');
+          div.className = 'flex items-center justify-between p-2 border rounded bg-gray-50';
+          div.innerHTML = `
+            <span>${column.label}</span>
+            <div class="flex gap-1">
+              <button data-key="${key}" data-direction="up" class="move-column-btn px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm" ${index === 0 ? 'disabled' : ''}>&#9650;</button>
+              <button data-key="${key}" data-direction="down" class="move-column-btn px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm" ${index === selectedColumnKeys.length - 1 ? 'disabled' : ''}>&#9660;</button>
+            </div>
+          `;
+          selectedColumnsList.appendChild(div);
+        });
+
+        // Renderizar checkboxes para todas as colunas disponíveis
+        availableColumns.forEach(column => {
+          const div = document.createElement('div');
+          div.className = 'flex items-center gap-2';
+          div.innerHTML = `
+            <input type="checkbox" id="col-${column.key}" value="${column.key}" ${selectedColumnKeys.includes(column.key) ? 'checked' : ''} class="column-checkbox">
+            <label for="col-${column.key}">${column.label}</label>
+          `;
+          availableColumnsCheckboxes.appendChild(div);
+        });
+
+        // Adicionar listeners para checkboxes
+        document.querySelectorAll('.column-checkbox').forEach(checkbox => {
+          checkbox.onchange = (e) => {
+            const key = e.target.value;
+            if (e.target.checked) {
+              if (!selectedColumnKeys.includes(key)) {
+                selectedColumnKeys.push(key);
+              }
+            } else {
+              selectedColumnKeys = selectedColumnKeys.filter(k => k !== key);
+            }
+            renderColumnConfigModal(); // Re-renderiza para atualizar botões de mover
+          };
+        });
+
+        // Adicionar listeners para botões de mover
+        document.querySelectorAll('.move-column-btn').forEach(button => {
+          button.onclick = (e) => {
+            const keyToMove = e.target.dataset.key;
+            const direction = e.target.dataset.direction;
+            const currentIndex = selectedColumnKeys.indexOf(keyToMove);
+
+            if (direction === 'up' && currentIndex > 0) {
+              [selectedColumnKeys[currentIndex], selectedColumnKeys[currentIndex - 1]] =
+              [selectedColumnKeys[currentIndex - 1], selectedColumnKeys[currentIndex]];
+            } else if (direction === 'down' && currentIndex < selectedColumnKeys.length - 1) {
+              [selectedColumnKeys[currentIndex], selectedColumnKeys[currentIndex + 1]] =
+              [selectedColumnKeys[currentIndex + 1], selectedColumnKeys[currentIndex]];
+            }
+            renderColumnConfigModal(); // Re-renderiza para atualizar a ordem e botões
+          };
+        });
+      }
+
+      btnConfigureColumns.addEventListener("click", () => {
+        renderColumnConfigModal();
+        columnConfigModal.classList.remove("hidden");
+      });
+
+      closeModalBtn.addEventListener("click", () => {
+        columnConfigModal.classList.add("hidden");
+      });
+
+      cancelColumnConfigBtn.addEventListener("click", () => {
+        // Opcional: recarregar selectedColumnKeys do estado salvo se houver
+        // Por simplicidade, apenas fecha o modal
+        columnConfigModal.classList.add("hidden");
+      });
+
+      saveColumnConfigBtn.addEventListener("click", () => {
+        // Salvar a configuração (se necessário, em localStorage)
+        // E então atualizar o dashboard com as novas colunas
+        updateDashboard(currentPage);
+        columnConfigModal.classList.add("hidden");
+      });
+
+      // --- Funções de Dados e Renderização (existentes, com modificações) ---
 
       async function fetchData(page = 1) {
         // Para startDate, use o início do dia
@@ -117,6 +338,7 @@
         }
         return result;
       }
+
       function renderSummaryCards(data) {
         const total = data.reduce((acc, cur) => acc + cur.amount, 0);
         const count = data.length; // Note: This is count for current page, not total from API
@@ -136,6 +358,7 @@
           </div>
         `;
       }
+
       function renderChart(data) {
         const grouped = data.reduce((acc, item) => {
           // Agrupa por data aprovada para ficar consistente com a tabela
@@ -180,17 +403,34 @@
           }
         });
       }
+
+      // Função renderTable modificada para ser dinâmica
       function renderTable(data) {
-        dataTableBody.innerHTML = data.map(item => `
-          <tr class="hover:bg-gray-100 cursor-pointer">
-            <td class="px-6 py-4 whitespace-nowrap">${item.user.name}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-blue-600 underline">${item.user.email}</td>
-            <td class="px-6 py-4 whitespace-nowrap">R$ ${item.amount.toFixed(2)}</td>
-            <td class="px-6 py-4 whitespace-nowrap">${new Date(item.approvedAt).toLocaleString()}</td>
-            <td class="px-6 py-4 whitespace-nowrap capitalize">${item.status.toLowerCase()}</td>
-          </tr>
-        `).join('');
+        // Renderiza o cabeçalho da tabela
+        const headerRow = document.createElement('tr');
+        selectedColumnKeys.forEach(key => {
+          const column = availableColumns.find(col => col.key === key);
+          if (column) {
+            const th = document.createElement('th');
+            th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+            th.textContent = column.label;
+            headerRow.appendChild(th);
+          }
+        });
+        dataTableHead.innerHTML = ''; // Limpa o cabeçalho existente
+        dataTableHead.appendChild(headerRow);
+
+        // Renderiza o corpo da tabela
+        dataTableBody.innerHTML = data.map(item => {
+          const cells = selectedColumnKeys.map(key => {
+            const value = getNestedValue(item, key);
+            const formattedValue = formatCellValue(key, value);
+            return `<td class="px-6 py-4 whitespace-nowrap">${formattedValue}</td>`;
+          }).join('');
+          return `<tr class="hover:bg-gray-100 cursor-pointer">${cells}</tr>`;
+        }).join('');
       }
+
       async function updateDashboard(page = 1) {
         const result = await fetchData(page);
         const data = result.data || [];
@@ -198,25 +438,30 @@
         lastPage = result.lastPage || 1;
         renderSummaryCards(data);
         renderChart(data);
-        renderTable(data);
+        renderTable(data); // Chama a função renderTable atualizada
         updatePaginationButtons();
       }
+
       function updatePaginationButtons() {
         pageInfo.textContent = `Página ${currentPage} de ${lastPage}`;
         prevPageBtn.disabled = currentPage <= 1;
         nextPageBtn.disabled = currentPage >= lastPage;
       }
+
       prevPageBtn.addEventListener("click", () => {
         if(currentPage > 1) {
           updateDashboard(currentPage - 1);
         }
       });
+
       nextPageBtn.addEventListener("click", () => {
         if(currentPage < lastPage) {
           updateDashboard(currentPage + 1);
         }
       });
+
       btnFilter.addEventListener("click", () => updateDashboard(1));
+
       // Carrega dados iniciais
       updateDashboard(1);
     });
