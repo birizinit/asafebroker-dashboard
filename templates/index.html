@@ -136,7 +136,7 @@
       const orderBy = document.getElementById("orderBy");
       const orderDirection = document.getElementById("orderDirection");
       const btnFilter = document.getElementById("btnFilter");
-      const dataTableHead = document.getElementById("dataTableHead"); // Novo
+      const dataTableHead = document.getElementById("dataTableHead");
       const dataTableBody = document.getElementById("dataTableBody");
       const summaryCards = document.getElementById("summaryCards");
       const pageInfo = document.getElementById("pageInfo");
@@ -166,8 +166,8 @@
         { key: 'id', label: 'ID Depósito' },
         { key: 'user.name', label: 'Nome' },
         { key: 'user.email', label: 'E-mail' },
-        { key: 'amount', label: 'Valor Depositado (R$)' },
-        { key: 'amountFrom', label: 'Valor Origem' },
+        { key: 'amount', label: 'Valor Depositado (US$)' }, // Atualizado
+        { key: 'amountFrom', label: 'Valor Origem (R$)' }, // Atualizado
         { key: 'currencyTo', label: 'Moeda Destino' },
         { key: 'currencyFrom', label: 'Moeda Origem' },
         { key: 'method', label: 'Método' },
@@ -200,14 +200,17 @@
       function formatCellValue(key, value) {
         if (value === null || value === undefined) return '';
 
-        if (key.includes('amount') && typeof value === 'number') {
-          return `R$ ${value.toFixed(2)}`;
+        if (key === 'amount' && typeof value === 'number') { // Específico para 'amount'
+          return `US$ ${value.toFixed(2)}`; // Atualizado para USD
+        }
+        if (key === 'amountFrom' && typeof value === 'number') { // Específico para 'amountFrom'
+          return `R$ ${value.toFixed(2)}`; // Mantido como BRL
         }
         if (key.includes('At') && typeof value === 'string') {
           try {
             return new Date(value).toLocaleString();
           } catch (e) {
-            return value; // Retorna o valor original se a data for inválida
+            return value;
           }
         }
         if (key === 'status' && typeof value === 'string') {
@@ -226,7 +229,7 @@
         // Renderizar colunas selecionadas (com botões de reordenação)
         selectedColumnKeys.forEach((key, index) => {
           const column = availableColumns.find(col => col.key === key);
-          if (!column) return; // Caso a chave não seja encontrada
+          if (!column) return;
 
           const div = document.createElement('div');
           div.className = 'flex items-center justify-between p-2 border rounded bg-gray-50';
@@ -262,7 +265,7 @@
             } else {
               selectedColumnKeys = selectedColumnKeys.filter(k => k !== key);
             }
-            renderColumnConfigModal(); // Re-renderiza para atualizar botões de mover
+            renderColumnConfigModal();
           };
         });
 
@@ -280,7 +283,7 @@
               [selectedColumnKeys[currentIndex], selectedColumnKeys[currentIndex + 1]] =
               [selectedColumnKeys[currentIndex + 1], selectedColumnKeys[currentIndex]];
             }
-            renderColumnConfigModal(); // Re-renderiza para atualizar a ordem e botões
+            renderColumnConfigModal();
           };
         });
       }
@@ -295,14 +298,10 @@
       });
 
       cancelColumnConfigBtn.addEventListener("click", () => {
-        // Opcional: recarregar selectedColumnKeys do estado salvo se houver
-        // Por simplicidade, apenas fecha o modal
         columnConfigModal.classList.add("hidden");
       });
 
       saveColumnConfigBtn.addEventListener("click", () => {
-        // Salvar a configuração (se necessário, em localStorage)
-        // E então atualizar o dashboard com as novas colunas
         updateDashboard(currentPage);
         columnConfigModal.classList.add("hidden");
       });
@@ -310,14 +309,9 @@
       // --- Funções de Dados e Renderização (existentes, com modificações) ---
 
       async function fetchData(page = 1) {
-        // Para startDate, use o início do dia
         const isoStartDate = new Date(startDate.value).toISOString();
-
-        // Para endDate, defina-o para o final do dia selecionado
-        // Isso garante que todos os dados para aquele dia sejam incluídos,
-        // independentemente de problemas de fuso horário.
         const endOfDay = new Date(endDate.value);
-        endOfDay.setHours(23, 59, 59, 999); // Define para 23:59:59.999 no fuso horário local
+        endOfDay.setHours(23, 59, 59, 999);
         const isoEndDate = endOfDay.toISOString();
 
         const params = new URLSearchParams({
@@ -325,7 +319,7 @@
           pageSize: 10,
           isInfluencer: false,
           startDate: isoStartDate,
-          endDate: isoEndDate, // Use a data final modificada
+          endDate: isoEndDate,
           orderBy: orderBy.value,
           orderDirection: orderDirection.value,
           status: "APPROVED"
@@ -341,12 +335,12 @@
 
       function renderSummaryCards(data) {
         const total = data.reduce((acc, cur) => acc + cur.amount, 0);
-        const count = data.length; // Note: This is count for current page, not total from API
+        const count = data.length;
         const maxDeposit = data.reduce((acc, cur) => cur.amount > acc ? cur.amount : acc, 0);
         summaryCards.innerHTML = `
           <div class="bg-blue-100 p-6 rounded shadow text-center">
             <h3 class="text-lg font-semibold text-blue-800">Total Depositado</h3>
-            <p class="text-3xl font-bold mt-2 text-blue-900">R$ ${total.toFixed(2)}</p>
+            <p class="text-3xl font-bold mt-2 text-blue-900">US$ ${total.toFixed(2)}</p> <!-- Atualizado -->
           </div>
           <div class="bg-green-100 p-6 rounded shadow text-center">
             <h3 class="text-lg font-semibold text-green-800">Número de Depósitos</h3>
@@ -354,14 +348,13 @@
           </div>
           <div class="bg-yellow-100 p-6 rounded shadow text-center">
             <h3 class="text-lg font-semibold text-yellow-800">Maior Depósito</h3>
-            <p class="text-3xl font-bold mt-2 text-yellow-900">R$ ${maxDeposit.toFixed(2)}</p>
+            <p class="text-3xl font-bold mt-2 text-yellow-900">US$ ${maxDeposit.toFixed(2)}</p> <!-- Atualizado -->
           </div>
         `;
       }
 
       function renderChart(data) {
         const grouped = data.reduce((acc, item) => {
-          // Agrupa por data aprovada para ficar consistente com a tabela
           const day = new Date(item.approvedAt).toLocaleDateString();
           acc[day] = (acc[day] || 0) + item.amount;
           return acc;
@@ -374,7 +367,7 @@
           data: {
             labels,
             datasets: [{
-              label: 'Depósitos por dia (R$)',
+              label: 'Depósitos por dia (US$)', // Atualizado
               data: values,
               borderColor: '#2563EB',
               backgroundColor: 'rgba(37, 99, 235, 0.2)',
@@ -397,16 +390,14 @@
               intersect: false
             },
             scales: {
-              y: { beginAtZero: true, ticks: { callback: val => 'R$ ' + val } },
+              y: { beginAtZero: true, ticks: { callback: val => 'US$ ' + val } }, // Atualizado
               x: { ticks: { maxRotation: 45, minRotation: 45 } }
             }
           }
         });
       }
 
-      // Função renderTable modificada para ser dinâmica
       function renderTable(data) {
-        // Renderiza o cabeçalho da tabela
         const headerRow = document.createElement('tr');
         selectedColumnKeys.forEach(key => {
           const column = availableColumns.find(col => col.key === key);
@@ -417,10 +408,9 @@
             headerRow.appendChild(th);
           }
         });
-        dataTableHead.innerHTML = ''; // Limpa o cabeçalho existente
+        dataTableHead.innerHTML = '';
         dataTableHead.appendChild(headerRow);
 
-        // Renderiza o corpo da tabela
         dataTableBody.innerHTML = data.map(item => {
           const cells = selectedColumnKeys.map(key => {
             const value = getNestedValue(item, key);
@@ -438,7 +428,7 @@
         lastPage = result.lastPage || 1;
         renderSummaryCards(data);
         renderChart(data);
-        renderTable(data); // Chama a função renderTable atualizada
+        renderTable(data);
         updatePaginationButtons();
       }
 
@@ -462,7 +452,6 @@
 
       btnFilter.addEventListener("click", () => updateDashboard(1));
 
-      // Carrega dados iniciais
       updateDashboard(1);
     });
   </script>
