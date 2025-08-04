@@ -29,7 +29,8 @@
       <label for="orderBy" class="block text-gray-700 font-semibold mb-1">Ordenar por</label>
       <select id="orderBy" class="border rounded px-3 py-2">
         <option value="amount">Valor</option>
-        <option value="createdAt">Data</option>
+        <option value="createdAt">Data criação</option>
+        <option value="approvedAt">Data aprovação</option>
         <option value="status">Status</option>
       </select>
     </div>
@@ -53,19 +54,26 @@
   </section>
 
   <!-- Tabela -->
-  <section class="overflow-x-auto bg-white rounded shadow">
+  <section class="overflow-x-auto bg-white rounded shadow mb-6">
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-100">
         <tr>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-mail</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Depositado (R$)</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Aprovação</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
         </tr>
       </thead>
       <tbody id="dataTableBody" class="divide-y divide-gray-200"></tbody>
     </table>
+  </section>
+
+  <!-- Paginação -->
+  <section class="flex justify-center gap-4 items-center">
+    <button id="prevPage" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50" disabled>Anterior</button>
+    <span id="pageInfo" class="font-semibold"></span>
+    <button id="nextPage" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50" disabled>Próximo</button>
   </section>
 
   <script>
@@ -77,16 +85,25 @@
       const btnFilter = document.getElementById("btnFilter");
       const dataTableBody = document.getElementById("dataTableBody");
       const summaryCards = document.getElementById("summaryCards");
+      const pageInfo = document.getElementById("pageInfo");
+      const prevPageBtn = document.getElementById("prevPage");
+      const nextPageBtn = document.getElementById("nextPage");
       const ctx = document.getElementById("depositChart").getContext("2d");
-      let chartInstance;
 
-      // Define datas iniciais: 1º Jan até hoje
+      let chartInstance;
+      let currentPage = 1;
+      let lastPage = 1;
+
+      // Datas padrão: 1º Jan até hoje
       const today = new Date().toISOString().split("T")[0];
       startDate.value = "2025-01-01";
       endDate.value = today;
 
-      async function fetchData() {
+      async function fetchData(page = 1) {
         const params = new URLSearchParams({
+          page,
+          pageSize: 10,
+          isInfluencer: false,
           startDate: new Date(startDate.value).toISOString(),
           endDate: new Date(endDate.value).toISOString(),
           orderBy: orderBy.value,
@@ -95,7 +112,13 @@
         });
         const response = await fetch('/data?' + params.toString());
         const result = await response.json();
-        return result.data || [];
+
+        if(result.error){
+          alert("Erro ao carregar dados: " + result.error);
+          return { data: [], currentPage: 1, lastPage: 1 };
+        }
+
+        return result;
       }
 
       function renderSummaryCards(data) {
@@ -121,7 +144,8 @@
 
       function renderChart(data) {
         const grouped = data.reduce((acc, item) => {
-          const day = new Date(item.createdAt).toLocaleDateString();
+          // Agrupa por data aprovada para ficar consistente com a tabela
+          const day = new Date(item.approvedAt).toLocaleDateString();
           acc[day] = (acc[day] || 0) + item.amount;
           return acc;
         }, {});
@@ -172,23 +196,46 @@
             <td class="px-6 py-4 whitespace-nowrap">${item.user.name}</td>
             <td class="px-6 py-4 whitespace-nowrap text-blue-600 underline">${item.user.email}</td>
             <td class="px-6 py-4 whitespace-nowrap">R$ ${item.amount.toFixed(2)}</td>
-            <td class="px-6 py-4 whitespace-nowrap">${new Date(item.createdAt).toLocaleString()}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${new Date(item.approvedAt).toLocaleString()}</td>
             <td class="px-6 py-4 whitespace-nowrap capitalize">${item.status.toLowerCase()}</td>
           </tr>
         `).join('');
       }
 
-      async function updateDashboard() {
-        const data = await fetchData();
+      async function updateDashboard(page = 1) {
+        const result = await fetchData(page);
+        const data = result.data || [];
+        currentPage = result.currentPage || 1;
+        lastPage = result.lastPage || 1;
+
         renderSummaryCards(data);
         renderChart(data);
         renderTable(data);
+        updatePaginationButtons();
       }
 
-      btnFilter.addEventListener("click", updateDashboard);
+      function updatePaginationButtons() {
+        pageInfo.textContent = `Página ${currentPage} de ${lastPage}`;
+        prevPageBtn.disabled = currentPage <= 1;
+        nextPageBtn.disabled = currentPage >= lastPage;
+      }
 
-      // Carregar dados inicial
-      updateDashboard();
+      prevPageBtn.addEventListener("click", () => {
+        if(currentPage > 1) {
+          updateDashboard(currentPage - 1);
+        }
+      });
+
+      nextPageBtn.addEventListener("click", () => {
+        if(currentPage < lastPage) {
+          updateDashboard(currentPage + 1);
+        }
+      });
+
+      btnFilter.addEventListener("click", () => updateDashboard(1));
+
+      // Carrega dados iniciais
+      updateDashboard(1);
     });
   </script>
 </body>
