@@ -9,6 +9,7 @@ API_TOKEN = "o7efkbcw58"
 def fetch_data(params):
     headers = {"api-token": API_TOKEN}
     response = requests.get(API_URL, headers=headers, params=params)
+    response.raise_for_status()  # levanta erro em caso de problema
     return response.json()
 
 @app.route("/")
@@ -17,17 +18,35 @@ def index():
 
 @app.route("/data")
 def data():
+    # Pegando parâmetros da query string, com defaults
+    page = int(request.args.get("page", 1))
+    page_size = int(request.args.get("pageSize", 10))
+    is_influencer = request.args.get("isInfluencer", "false").lower() == "true"
+    start_date = request.args.get("startDate")
+    end_date = request.args.get("endDate")
+    order_by = request.args.get("orderBy", "amount")
+    order_direction = request.args.get("orderDirection", "DESC")
+    status = request.args.get("status", "APPROVED")
+
+    # Monta params para API externa
     params = {
-        "page": request.args.get("page", 1),
-        "pageSize": request.args.get("pageSize", 10),
-        "isInfluencer": request.args.get("isInfluencer", "false"),
-        "startDate": request.args.get("startDate"),
-        "endDate": request.args.get("endDate"),
-        "orderBy": request.args.get("orderBy", "amount"),
-        "orderDirection": request.args.get("orderDirection", "DESC"),
-        "status": request.args.get("status", "APPROVED"),
+        "page": page,
+        "pageSize": page_size,
+        "isInfluencer": str(is_influencer).lower(),
+        "startDate": start_date,
+        "endDate": end_date,
+        "orderBy": order_by,
+        "orderDirection": order_direction,
+        "status": status,
     }
-    return jsonify(fetch_data(params))
+
+    try:
+        data = fetch_data(params)
+    except requests.RequestException as e:
+        return jsonify({"error": "Erro ao buscar dados da API externa", "details": str(e)}), 500
+
+    return jsonify(data)
+
 
 if __name__ == "__main__":
     import os
