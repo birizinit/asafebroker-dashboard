@@ -1,7 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 import requests
-import csv
-from datetime import datetime
 
 app = Flask(__name__)
 
@@ -32,4 +30,6 @@ def data():
     return jsonify(fetch_data(params))
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
