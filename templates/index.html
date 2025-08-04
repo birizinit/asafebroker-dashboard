@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard AsafeBroker</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-white text-gray-800">
+  <div class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold mb-6">Painel de Depósitos</h1>
+
+    <!-- Filtros -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <input type="date" id="startDate" class="border p-2 rounded" />
+      <input type="date" id="endDate" class="border p-2 rounded" />
+      <select id="orderBy" class="border p-2 rounded">
+        <option value="amount">Valor</option>
+        <option value="createdAt">Data</option>
+      </select>
+      <select id="orderDirection" class="border p-2 rounded">
+        <option value="DESC">Decrescente</option>
+        <option value="ASC">Crescente</option>
+      </select>
+    </div>
+
+    <!-- Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" id="summary-cards">
+      <!-- Preenchido via JS -->
+    </div>
+
+    <!-- Tabela -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white border">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2 border">Nome</th>
+            <th class="px-4 py-2 border">Email</th>
+            <th class="px-4 py-2 border">Valor</th>
+            <th class="px-4 py-2 border">Data</th>
+            <th class="px-4 py-2 border">Status</th>
+          </tr>
+        </thead>
+        <tbody id="data-table">
+          <!-- Preenchido via JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="mt-10">
+      <canvas id="depositChart" height="100"></canvas>
+    </div>
+  </div>
+
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
