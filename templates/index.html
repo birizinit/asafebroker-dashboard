@@ -43,7 +43,6 @@
       cursor: pointer;
       color: #666;
     }
-
     /* Estilos para o tema escuro */
     html.dark {
       background-color: #1a202c;
@@ -138,103 +137,174 @@
           <i data-lucide="columns" class="w-4 h-4"></i>
           Configurar Colunas
         </button>
+        <!-- Novo botão para alternar para a aba de saldos de usuários -->
+        <button id="showUserBalancesBtn" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2">
+          <i data-lucide="wallet" class="w-4 h-4"></i>
+          Saldos de Usuários
+        </button>
+        <!-- Botão para voltar para a aba de depósitos (inicialmente oculto) -->
+        <button id="showDepositsBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2 hidden">
+          <i data-lucide="banknote" class="w-4 h-4"></i>
+          Depósitos
+        </button>
       </div>
     </header>
 
-    <!-- Filtros -->
-    <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
-      <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Filtros de Depósitos</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 items-end">
-        <div>
-          <label for="startDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data início</label>
-          <input type="date" id="startDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
+    <!-- Seção de Depósitos (existente) -->
+    <div id="depositsSection">
+      <!-- Filtros -->
+      <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Filtros de Depósitos</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 items-end">
+          <div>
+            <label for="startDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data início</label>
+            <input type="date" id="startDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
+          </div>
+          <div>
+            <label for="endDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data fim</label>
+            <input type="date" id="endDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
+          </div>
+          <div>
+            <label for="orderBy" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Ordenar por</label>
+            <select id="orderBy" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+              <option value="amount">Valor</option>
+              <option value="createdAt">Data criação</option>
+              <option value="approvedAt">Data aprovação</option>
+              <option value="status">Status</option>
+            </select>
+          </div>
+          <div>
+            <label for="orderDirection" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Direção</label>
+            <select id="orderDirection" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+              <option value="DESC">Descendente</option>
+              <option value="ASC">Ascendente</option>
+            </select>
+          </div>
+          <div>
+            <label for="pageSize" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Registros por Página</label>
+            <select id="pageSize" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+          <div class="flex gap-4">
+            <button id="btnFilter" class="w-full bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2">
+              <i data-lucide="filter" class="w-4 h-4"></i>
+              Filtrar
+            </button>
+            <button id="btnClearFilters" class="w-full bg-gray-400 text-white px-5 py-2 rounded-lg hover:bg-gray-500 transition-colors duration-200 flex items-center justify-center gap-2">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+              Limpar
+            </button>
+          </div>
         </div>
-        <div>
-          <label for="endDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data fim</label>
-          <input type="date" id="endDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
-        </div>
-        <div>
-          <label for="orderBy" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Ordenar por</label>
-          <select id="orderBy" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-            <option value="amount">Valor</option>
-            <option value="createdAt">Data criação</option>
-            <option value="approvedAt">Data aprovação</option>
-            <option value="status">Status</option>
-          </select>
-        </div>
-        <div>
-          <label for="orderDirection" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Direção</label>
-          <select id="orderDirection" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-            <option value="DESC">Descendente</option>
-            <option value="ASC">Ascendente</option>
-          </select>
-        </div>
-        <div>
-          <label for="pageSize" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Registros por Página</label>
-          <select id="pageSize" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
-        </div>
-        <div class="flex gap-4">
-          <button id="btnFilter" class="w-full bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2">
-            <i data-lucide="filter" class="w-4 h-4"></i>
-            Filtrar
-          </button>
-          <button id="btnClearFilters" class="w-full bg-gray-400 text-white px-5 py-2 rounded-lg hover:bg-gray-500 transition-colors duration-200 flex items-center justify-center gap-2">
-            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-            Limpar
-          </button>
+      </section>
+      <!-- Loading Indicator -->
+      <div id="loadingIndicator" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-[1001]">
+        <div class="flex flex-col items-center text-white">
+          <svg class="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="mt-3 text-lg">Carregando dados...</p>
         </div>
       </div>
-    </section>
-
-    <!-- Loading Indicator -->
-    <div id="loadingIndicator" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-[1001]">
-      <div class="flex flex-col items-center text-white">
-        <svg class="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <p class="mt-3 text-lg">Carregando dados...</p>
-      </div>
+      <!-- Big Cards -->
+      <section id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></section>
+      <!-- Gráfico -->
+      <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Depósitos por Dia</h2>
+        <canvas id="depositChart" height="100"></canvas>
+      </section>
+      <!-- Tabela -->
+      <section class="overflow-x-auto bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 transition-colors duration-300">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-100 dark:bg-gray-700">
+            <tr id="dataTableHead">
+              <!-- Cabeçalho da tabela será renderizado dinamicamente aqui -->
+            </tr>
+          </thead>
+          <tbody id="dataTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+            <!-- Corpo da tabela será renderizado dinamicamente aqui -->
+          </tbody>
+        </table>
+      </section>
+      <!-- Paginação -->
+      <section class="flex justify-center gap-4 items-center mb-8">
+        <button id="prevPage" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200" disabled>
+          <i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Anterior
+        </button>
+        <span id="pageInfo" class="font-semibold text-gray-700 dark:text-gray-300"></span>
+        <button id="nextPage" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200" disabled>
+          Próximo <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>
+        </button>
+      </section>
     </div>
 
-    <!-- Big Cards -->
-    <section id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></section>
+    <!-- Nova Seção de Saldos de Usuários (inicialmente oculta) -->
+    <div id="userBalancesSection" class="hidden">
+      <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Saldos de Usuários</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+          <div>
+            <label for="userBalancePageSize" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Registros por Página</label>
+            <select id="userBalancePageSize" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+          <div>
+            <label for="userBalanceOrderBy" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Ordenar por</label>
+            <select id="userBalanceOrderBy" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+              <option value="balance">Saldo (Real)</option>
+              <option value="name">Nome Usuário</option>
+              <option value="lastLoginAt">Último Login</option>
+            </select>
+          </div>
+          <div>
+            <label for="userBalanceOrderDirection" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Direção</label>
+            <select id="userBalanceOrderDirection" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+              <option value="DESC">Descendente</option>
+              <option value="ASC">Ascendente</option>
+            </select>
+          </div>
+          <div class="flex gap-4">
+            <button id="btnFilterUserBalances" class="w-full bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2">
+              <i data-lucide="filter" class="w-4 h-4"></i>
+              Filtrar
+            </button>
+          </div>
+        </div>
+      </section>
 
-    <!-- Gráfico -->
-    <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
-      <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Depósitos por Dia</h2>
-      <canvas id="depositChart" height="100"></canvas>
-    </section>
+      <section class="overflow-x-auto bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 transition-colors duration-300">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-100 dark:bg-gray-700">
+            <tr id="userBalancesTableHead">
+              <!-- Cabeçalho da tabela de saldos de usuários será renderizado dinamicamente aqui -->
+            </tr>
+          </thead>
+          <tbody id="userBalancesTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+            <!-- Corpo da tabela de saldos de usuários será renderizado dinamicamente aqui -->
+          </tbody>
+        </table>
+      </section>
+      <!-- Paginação para saldos de usuários -->
+      <section class="flex justify-center gap-4 items-center mb-8">
+        <button id="prevUserBalancePage" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200" disabled>
+          <i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Anterior
+        </button>
+        <span id="userBalancePageInfo" class="font-semibold text-gray-700 dark:text-gray-300"></span>
+        <button id="nextUserBalancePage" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200" disabled>
+          Próximo <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>
+        </button>
+      </section>
+    </div>
 
-    <!-- Tabela -->
-    <section class="overflow-x-auto bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 transition-colors duration-300">
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-100 dark:bg-gray-700">
-          <tr id="dataTableHead">
-            <!-- Cabeçalho da tabela será renderizado dinamicamente aqui -->
-          </tr>
-        </thead>
-        <tbody id="dataTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
-          <!-- Corpo da tabela será renderizado dinamicamente aqui -->
-        </tbody>
-      </table>
-    </section>
-
-    <!-- Paginação -->
-    <section class="flex justify-center gap-4 items-center mb-8">
-      <button id="prevPage" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200" disabled>
-        <i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Anterior
-      </button>
-      <span id="pageInfo" class="font-semibold text-gray-700 dark:text-gray-300"></span>
-      <button id="nextPage" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200" disabled>
-        Próximo <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>
-      </button>
-    </section>
   </div>
 
   <!-- Modal de Configuração de Colunas -->
@@ -242,32 +312,30 @@
     <div class="modal-content dark:bg-gray-800 dark:text-white transition-colors duration-300">
       <span class="modal-close-button" id="closeModalBtn">&times;</span>
       <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Configurar Colunas da Tabela</h2>
-
       <div class="mb-6">
         <h3 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">Colunas Visíveis</h3>
         <div id="selectedColumnsList" class="space-y-2 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700">
           <!-- Colunas selecionadas e reordenáveis serão renderizadas aqui -->
         </div>
       </div>
-
       <div>
         <h3 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">Colunas Disponíveis</h3>
         <div id="availableColumnsCheckboxes" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700">
           <!-- Checkboxes para todas as colunas disponíveis serão renderizadas aqui -->
         </div>
       </div>
-
       <div class="mt-6 flex justify-end gap-4">
         <button id="cancelColumnConfigBtn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">Cancelar</button>
         <button id="saveColumnConfigBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">Salvar</button>
       </div>
     </div>
   </div>
-
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
 
+      // Elementos da seção de Depósitos
+      const depositsSection = document.getElementById("depositsSection");
       const startDateInput = document.getElementById("startDate");
       const endDateInput = document.getElementById("endDate");
       const orderBySelect = document.getElementById("orderBy");
@@ -282,11 +350,28 @@
       const prevPageBtn = document.getElementById("prevPage");
       const nextPageBtn = document.getElementById("nextPage");
       const ctx = document.getElementById("depositChart").getContext("2d");
-      const loadingIndicator = document.getElementById("loadingIndicator");
       let chartInstance;
       let currentPage = 1;
       let lastPage = 1;
 
+      // Elementos da nova seção de Saldos de Usuários
+      const userBalancesSection = document.getElementById("userBalancesSection");
+      const showUserBalancesBtn = document.getElementById("showUserBalancesBtn");
+      const showDepositsBtn = document.getElementById("showDepositsBtn");
+      const userBalancePageSizeSelect = document.getElementById("userBalancePageSize");
+      const userBalanceOrderBySelect = document.getElementById("userBalanceOrderBy");
+      const userBalanceOrderDirectionSelect = document.getElementById("userBalanceOrderDirection");
+      const btnFilterUserBalances = document.getElementById("btnFilterUserBalances");
+      const userBalancesTableHead = document.getElementById("userBalancesTableHead");
+      const userBalancesTableBody = document.getElementById("userBalancesTableBody");
+      const userBalancePageInfo = document.getElementById("userBalancePageInfo");
+      const prevUserBalancePageBtn = document.getElementById("prevUserBalancePage");
+      const nextUserBalancePageBtn = document.getElementById("nextUserBalancePage");
+      let currentUserBalancePage = 1;
+      let lastUserBalancePage = 1;
+
+      // Elementos comuns
+      const loadingIndicator = document.getElementById("loadingIndicator");
       const btnConfigureColumns = document.getElementById("btnConfigureColumns");
       const columnConfigModal = document.getElementById("columnConfigModal");
       const closeModalBtn = document.getElementById("closeModalBtn");
@@ -294,12 +379,12 @@
       const cancelColumnConfigBtn = document.getElementById("cancelColumnConfigBtn");
       const selectedColumnsList = document.getElementById("selectedColumnsList");
       const availableColumnsCheckboxes = document.getElementById("availableColumnsCheckboxes");
-
       const themeToggle = document.getElementById("themeToggle");
       const htmlElement = document.documentElement;
       const lightIcon = document.querySelector('.light-icon');
       const darkIcon = document.querySelector('.dark-icon');
 
+      // Configuração de Tema
       const savedTheme = localStorage.getItem('theme') || 'light';
       htmlElement.classList.add(savedTheme);
       if (savedTheme === 'dark') {
@@ -332,14 +417,21 @@
         }
       });
 
+      // Configuração de Data Padrão para Depósitos
       const defaultStartDate = "2025-01-01";
       const today = new Date().toISOString().split("T")[0];
       startDateInput.value = defaultStartDate;
       endDateInput.value = today;
 
+      // Persistência do tamanho da página para Depósitos
       const savedPageSize = localStorage.getItem('pageSize') || '10';
       pageSizeSelect.value = savedPageSize;
 
+      // Persistência do tamanho da página para Saldos de Usuários
+      const savedUserBalancePageSize = localStorage.getItem('userBalancePageSize') || '10';
+      userBalancePageSizeSelect.value = savedUserBalancePageSize;
+
+      // Limpar filtros de Depósitos
       btnClearFilters.addEventListener("click", () => {
         startDateInput.value = defaultStartDate;
         endDateInput.value = today;
@@ -350,6 +442,7 @@
         updateDashboard(1);
       });
 
+      // Definição de colunas para Depósitos
       const availableColumns = [
         { key: 'id', label: 'ID Depósito' },
         { key: 'tenantId', label: 'ID Tenant' },
@@ -381,6 +474,18 @@
         { key: 'user.balance', label: 'Saldo Usuário (Real)' },
       ];
 
+      // Definição de colunas para Saldos de Usuários
+      const availableUserColumns = [
+        { key: 'id', label: 'ID Usuário' },
+        { key: 'name', label: 'Nome' },
+        { key: 'email', label: 'E-mail' },
+        { key: 'nickname', label: 'Nickname' },
+        { key: 'phone', label: 'Telefone' },
+        { key: 'country', label: 'País' },
+        { key: 'lastLoginAt', label: 'Último Login' },
+        { key: 'user.balance', label: 'Saldo (Real)' }, // Usando a mesma chave para o formatador
+      ];
+
       let selectedColumnKeys = JSON.parse(localStorage.getItem('selectedColumnKeys')) || [
         'user.name',
         'user.email',
@@ -389,7 +494,20 @@
         'status',
       ];
 
+      let selectedUserColumnKeys = JSON.parse(localStorage.getItem('selectedUserColumnKeys')) || [
+        'name',
+        'email',
+        'user.balance',
+        'lastLoginAt',
+      ];
+
+      // Função para obter valor aninhado (usada por ambas as tabelas)
       function getNestedValue(obj, path) {
+        if (path === 'user.balance' && obj && obj.wallets) { // Para a tabela de usuários, o balance está direto em 'wallets'
+          const realWallet = obj.wallets.find(wallet => wallet.type === 'REAL');
+          return realWallet ? realWallet.balance : null;
+        }
+        // Para a tabela de depósitos, o user.balance está dentro de obj.user.wallets
         if (path === 'user.balance' && obj && obj.user && obj.user.wallets) {
           const realWallet = obj.user.wallets.find(wallet => wallet.type === 'REAL');
           return realWallet ? realWallet.balance : null;
@@ -397,17 +515,17 @@
         return path.split('.').reduce((acc, part) => acc && acc[part], obj);
       }
 
+      // Função para formatar valores de célula (usada por ambas as tabelas)
       function formatCellValue(key, value) {
         if (value === null || value === undefined) return '';
-
         if (key === 'amount' && typeof value === 'number') {
           return `US$ ${value.toFixed(2)}`;
         }
         if (key === 'amountFrom' && typeof value === 'number') {
           return `R$ ${value.toFixed(2)}`;
         }
-        if (key === 'user.balance' && typeof value === 'number') {
-          return `US$ ${value.toFixed(2)}`;
+        if (key === 'user.balance' && typeof value === 'number') { // Formata saldo real
+          return `R$ ${value.toFixed(2)}`;
         }
         if (key.includes('At') && typeof value === 'string') {
           try {
@@ -425,17 +543,23 @@
         if (key === 'user.email' && typeof value === 'string') {
           return `<a href="mailto:${value}" class="text-blue-600 dark:text-blue-400 underline">${value}</a>`;
         }
+        if (key === 'email' && typeof value === 'string') { // Para a tabela de usuários
+          return `<a href="mailto:${value}" class="text-blue-600 dark:text-blue-400 underline">${value}</a>`;
+        }
         return value;
       }
 
-      function renderColumnConfigModal() {
-        selectedColumnsList.innerHTML = '';
-        availableColumnsCheckboxes.innerHTML = '';
+      // Funções do Modal de Configuração de Colunas (agora genéricas)
+      function renderColumnConfigModal(currentSelectedKeys, allAvailableColumns, targetListId, targetCheckboxesId, saveCallback) {
+        const listElement = document.getElementById(targetListId);
+        const checkboxesElement = document.getElementById(targetCheckboxesId);
 
-        selectedColumnKeys.forEach((key, index) => {
-          const column = availableColumns.find(col => col.key === key);
+        listElement.innerHTML = '';
+        checkboxesElement.innerHTML = '';
+
+        currentSelectedKeys.forEach((key, index) => {
+          const column = allAvailableColumns.find(col => col.key === key);
           if (!column) return;
-
           const div = document.createElement('div');
           div.className = 'flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 shadow-sm';
           div.innerHTML = `
@@ -444,59 +568,90 @@
               <button data-key="${key}" data-direction="up" class="move-column-btn p-1 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm transition-colors duration-200" ${index === 0 ? 'disabled' : ''}>
                 <i data-lucide="chevron-up" class="w-4 h-4"></i>
               </button>
-              <button data-key="${key}" data-direction="down" class="move-column-btn p-1 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm transition-colors duration-200" ${index === selectedColumnKeys.length - 1 ? 'disabled' : ''}>
+              <button data-key="${key}" data-direction="down" class="move-column-btn p-1 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm transition-colors duration-200" ${index === currentSelectedKeys.length - 1 ? 'disabled' : ''}>
                 <i data-lucide="chevron-down" class="w-4 h-4"></i>
               </button>
             </div>
           `;
-          selectedColumnsList.appendChild(div);
+          listElement.appendChild(div);
         });
         lucide.createIcons();
 
-        availableColumns.forEach(column => {
+        allAvailableColumns.forEach(column => {
           const div = document.createElement('div');
           div.className = 'flex items-center gap-2';
           div.innerHTML = `
-            <input type="checkbox" id="col-${column.key.replace(/\./g, '-')}" value="${column.key}" ${selectedColumnKeys.includes(column.key) ? 'checked' : ''} class="column-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-blue-600 dark:focus:ring-blue-500">
+            <input type="checkbox" id="col-${column.key.replace(/\./g, '-')}" value="${column.key}" ${currentSelectedKeys.includes(column.key) ? 'checked' : ''} class="column-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-blue-600 dark:focus:ring-blue-500">
             <label for="col-${column.key.replace(/\./g, '-')}" class="text-gray-700 dark:text-gray-300">${column.label}</label>
           `;
-          availableColumnsCheckboxes.appendChild(div);
+          checkboxesElement.appendChild(div);
         });
 
-        document.querySelectorAll('.column-checkbox').forEach(checkbox => {
+        document.querySelectorAll(`#${targetCheckboxesId} .column-checkbox`).forEach(checkbox => {
           checkbox.onchange = (e) => {
             const key = e.target.value;
             if (e.target.checked) {
-              if (!selectedColumnKeys.includes(key)) {
-                selectedColumnKeys.push(key);
+              if (!currentSelectedKeys.includes(key)) {
+                currentSelectedKeys.push(key);
               }
             } else {
-              selectedColumnKeys = selectedColumnKeys.filter(k => k !== key);
+              currentSelectedKeys = currentSelectedKeys.filter(k => k !== key);
             }
-            renderColumnConfigModal();
+            // Re-render the modal to update buttons and order
+            renderColumnConfigModal(currentSelectedKeys, allAvailableColumns, targetListId, targetCheckboxesId, saveCallback);
           };
         });
 
-        document.querySelectorAll('.move-column-btn').forEach(button => {
+        document.querySelectorAll(`#${targetListId} .move-column-btn`).forEach(button => {
           button.onclick = (e) => {
             const keyToMove = e.currentTarget.dataset.key;
             const direction = e.currentTarget.dataset.direction;
-            const currentIndex = selectedColumnKeys.indexOf(keyToMove);
-
+            const currentIndex = currentSelectedKeys.indexOf(keyToMove);
             if (direction === 'up' && currentIndex > 0) {
-              [selectedColumnKeys[currentIndex], selectedColumnKeys[currentIndex - 1]] =
-              [selectedColumnKeys[currentIndex - 1], selectedColumnKeys[currentIndex]];
-            } else if (direction === 'down' && currentIndex < selectedColumnKeys.length - 1) {
-              [selectedColumnKeys[currentIndex], selectedColumnKeys[currentIndex + 1]] =
-              [selectedColumnKeys[currentIndex + 1], selectedColumnKeys[currentIndex]];
+              [currentSelectedKeys[currentIndex], currentSelectedKeys[currentIndex - 1]] =
+              [currentSelectedKeys[currentIndex - 1], currentSelectedKeys[currentIndex]];
+            } else if (direction === 'down' && currentIndex < currentSelectedKeys.length - 1) {
+              [currentSelectedKeys[currentIndex], currentSelectedKeys[currentIndex + 1]] =
+              [currentSelectedKeys[currentIndex + 1], currentSelectedKeys[currentIndex]];
             }
-            renderColumnConfigModal();
+            // Re-render the modal to update buttons and order
+            renderColumnConfigModal(currentSelectedKeys, allAvailableColumns, targetListId, targetCheckboxesId, saveCallback);
           };
         });
+
+        // Update the save callback to use the current selected keys
+        saveColumnConfigBtn.onclick = () => saveCallback(currentSelectedKeys);
+        cancelColumnConfigBtn.onclick = () => {
+          // Reset to saved state if cancelled
+          if (depositsSection.classList.contains('active-tab')) {
+            selectedColumnKeys = JSON.parse(localStorage.getItem('selectedColumnKeys')) || [
+              'user.name', 'user.email', 'amount', 'approvedAt', 'status'
+            ];
+          } else if (userBalancesSection.classList.contains('active-tab')) {
+            selectedUserColumnKeys = JSON.parse(localStorage.getItem('selectedUserColumnKeys')) || [
+              'name', 'email', 'user.balance', 'lastLoginAt'
+            ];
+          }
+          columnConfigModal.classList.add("hidden");
+        };
       }
 
       btnConfigureColumns.addEventListener("click", () => {
-        renderColumnConfigModal();
+        if (depositsSection.classList.contains('active-tab')) {
+          renderColumnConfigModal(selectedColumnKeys, availableColumns, 'selectedColumnsList', 'availableColumnsCheckboxes', (keys) => {
+            selectedColumnKeys = keys;
+            localStorage.setItem('selectedColumnKeys', JSON.stringify(selectedColumnKeys));
+            updateDashboard(currentPage);
+            columnConfigModal.classList.add("hidden");
+          });
+        } else if (userBalancesSection.classList.contains('active-tab')) {
+          renderColumnConfigModal(selectedUserColumnKeys, availableUserColumns, 'selectedColumnsList', 'availableColumnsCheckboxes', (keys) => {
+            selectedUserColumnKeys = keys;
+            localStorage.setItem('selectedUserColumnKeys', JSON.stringify(selectedUserColumnKeys));
+            updateUserBalancesDashboard(currentUserBalancePage);
+            columnConfigModal.classList.add("hidden");
+          });
+        }
         columnConfigModal.classList.remove("hidden");
       });
 
@@ -504,27 +659,13 @@
         columnConfigModal.classList.add("hidden");
       });
 
-      cancelColumnConfigBtn.addEventListener("click", () => {
-        selectedColumnKeys = JSON.parse(localStorage.getItem('selectedColumnKeys')) || [
-          'user.name', 'user.email', 'amount', 'approvedAt', 'status'
-        ];
-        columnConfigModal.classList.add("hidden");
-      });
-
-      saveColumnConfigBtn.addEventListener("click", () => {
-        localStorage.setItem('selectedColumnKeys', JSON.stringify(selectedColumnKeys));
-        updateDashboard(currentPage);
-        columnConfigModal.classList.add("hidden");
-      });
-
+      // Funções de Fetch e Renderização para Depósitos
       async function fetchData(page = 1) {
         loadingIndicator.classList.remove('hidden');
-
         const isoStartDate = new Date(startDateInput.value).toISOString();
         const endOfDay = new Date(endDateInput.value);
         endOfDay.setHours(23, 59, 59, 999);
         const isoEndDate = endOfDay.toISOString();
-
         const params = new URLSearchParams({
           page,
           pageSize: pageSizeSelect.value,
@@ -544,32 +685,29 @@
           const result = await response.json();
           return result;
         } catch (error) {
-          alert("Erro ao carregar dados: " + error.message);
-          console.error("Erro ao buscar dados:", error);
-          // Retorna valores padrão para evitar erros no frontend
+          alert("Erro ao carregar dados de depósitos: " + error.message);
+          console.error("Erro ao buscar dados de depósitos:", error);
           return { data: [], currentPage: 1, lastPage: 1, count: 0 };
         } finally {
           loadingIndicator.classList.add('hidden');
         }
       }
 
-      // renderSummaryCards agora usa os dados da página atual
       function renderSummaryCards(data) {
         const total = data.reduce((acc, cur) => acc + cur.amount, 0);
-        const count = data.length; // Agora é a contagem da página atual
+        const count = data.length;
         const maxDeposit = data.reduce((acc, cur) => cur.amount > acc ? cur.amount : acc, 0);
-
         summaryCards.innerHTML = `
           <div class="bg-blue-100 dark:bg-blue-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">Total Depositado (página)</h3> <!-- Texto ajustado -->
+            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">Total Depositado (página)</h3>
             <p class="text-3xl font-bold mt-2 text-blue-900 dark:text-blue-100">US$ ${total.toFixed(2)}</p>
           </div>
           <div class="bg-green-100 dark:bg-green-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">Depósitos (página)</h3> <!-- Texto ajustado -->
+            <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">Depósitos (página)</h3>
             <p class="text-3xl font-bold mt-2 text-green-900 dark:text-green-100">${count}</p>
           </div>
           <div class="bg-yellow-100 dark:bg-yellow-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200">Maior Depósito (página)</h3> <!-- Texto ajustado -->
+            <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200">Maior Depósito (página)</h3>
             <p class="text-3xl font-bold mt-2 text-yellow-900 dark:text-yellow-100">US$ ${maxDeposit.toFixed(2)}</p>
           </div>
         `;
@@ -619,10 +757,10 @@
         });
       }
 
-      function renderTable(data) {
+      function renderTable(data, headElement, bodyElement, columnKeys, availableCols) {
         const headerRow = document.createElement('tr');
-        selectedColumnKeys.forEach(key => {
-          const column = availableColumns.find(col => col.key === key);
+        columnKeys.forEach(key => {
+          const column = availableCols.find(col => col.key === key);
           if (column) {
             const th = document.createElement('th');
             th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider';
@@ -630,12 +768,12 @@
             headerRow.appendChild(th);
           }
         });
-        dataTableHead.innerHTML = '';
-        dataTableHead.appendChild(headerRow);
+        headElement.innerHTML = '';
+        headElement.appendChild(headerRow);
 
-        dataTableBody.innerHTML = data.map((item, rowIndex) => {
+        bodyElement.innerHTML = data.map((item, rowIndex) => {
           const rowClass = rowIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700';
-          const cells = selectedColumnKeys.map(key => {
+          const cells = columnKeys.map(key => {
             const value = getNestedValue(item, key);
             const formattedValue = formatCellValue(key, value);
             return `<td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">${formattedValue}</td>`;
@@ -649,9 +787,9 @@
         const data = result.data || [];
         currentPage = result.currentPage || 1;
         lastPage = result.lastPage || 1;
-        renderSummaryCards(data); // Passa apenas 'data' para os cards
+        renderSummaryCards(data);
         renderChart(data);
-        renderTable(data);
+        renderTable(data, dataTableHead, dataTableBody, selectedColumnKeys, availableColumns);
         updatePaginationButtons();
       }
 
@@ -661,25 +799,110 @@
         nextPageBtn.disabled = currentPage >= lastPage;
       }
 
+      // Funções de Fetch e Renderização para Saldos de Usuários
+      async function fetchUserBalances(page = 1) {
+        loadingIndicator.classList.remove('hidden');
+        const params = new URLSearchParams({
+          page,
+          pageSize: userBalancePageSizeSelect.value,
+          orderBy: userBalanceOrderBySelect.value,
+          orderDirection: userBalanceOrderDirectionSelect.value,
+        });
+        try {
+          const response = await fetch('/user-balances?' + params.toString());
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
+          }
+          const result = await response.json();
+          return result;
+        } catch (error) {
+          alert("Erro ao carregar dados de saldos de usuários: " + error.message);
+          console.error("Erro ao buscar dados de saldos de usuários:", error);
+          return { data: [], currentPage: 1, lastPage: 1, count: 0 };
+        } finally {
+          loadingIndicator.classList.add('hidden');
+        }
+      }
+
+      async function updateUserBalancesDashboard(page = 1) {
+        const result = await fetchUserBalances(page);
+        const data = result.data || [];
+        currentUserBalancePage = result.currentPage || 1;
+        lastUserBalancePage = result.lastPage || 1;
+        renderTable(data, userBalancesTableHead, userBalancesTableBody, selectedUserColumnKeys, availableUserColumns);
+        updateUserBalancesPaginationButtons();
+      }
+
+      function updateUserBalancesPaginationButtons() {
+        userBalancePageInfo.textContent = `Página ${currentUserBalancePage} de ${lastUserBalancePage}`;
+        prevUserBalancePageBtn.disabled = currentUserBalancePage <= 1;
+        nextUserBalancePageBtn.disabled = currentUserBalancePage >= lastUserBalancePage;
+      }
+
+      // Event Listeners para Depósitos
       prevPageBtn.addEventListener("click", () => {
         if(currentPage > 1) {
           updateDashboard(currentPage - 1);
         }
       });
-
       nextPageBtn.addEventListener("click", () => {
         if(currentPage < lastPage) {
           updateDashboard(currentPage + 1);
         }
       });
-
       btnFilter.addEventListener("click", () => updateDashboard(1));
       pageSizeSelect.addEventListener("change", () => {
         localStorage.setItem('pageSize', pageSizeSelect.value);
         updateDashboard(1);
       });
 
-      updateDashboard(1);
+      // Event Listeners para Saldos de Usuários
+      prevUserBalancePageBtn.addEventListener("click", () => {
+        if(currentUserBalancePage > 1) {
+          updateUserBalancesDashboard(currentUserBalancePage - 1);
+        }
+      });
+      nextUserBalancePageBtn.addEventListener("click", () => {
+        if(currentUserBalancePage < lastUserBalancePage) {
+          updateUserBalancesDashboard(currentUserBalancePage + 1);
+        }
+      });
+      btnFilterUserBalances.addEventListener("click", () => updateUserBalancesDashboard(1));
+      userBalancePageSizeSelect.addEventListener("change", () => {
+        localStorage.setItem('userBalancePageSize', userBalancePageSizeSelect.value);
+        updateUserBalancesDashboard(1);
+      });
+      userBalanceOrderBySelect.addEventListener("change", () => updateUserBalancesDashboard(1));
+      userBalanceOrderDirectionSelect.addEventListener("change", () => updateUserBalancesDashboard(1));
+
+
+      // Lógica para alternar entre as seções
+      function showDepositsView() {
+        depositsSection.classList.remove('hidden');
+        depositsSection.classList.add('active-tab');
+        userBalancesSection.classList.add('hidden');
+        userBalancesSection.classList.remove('active-tab');
+        showUserBalancesBtn.classList.remove('hidden');
+        showDepositsBtn.classList.add('hidden');
+        updateDashboard(currentPage); // Recarrega os dados da aba de depósitos
+      }
+
+      function showUserBalancesView() {
+        depositsSection.classList.add('hidden');
+        depositsSection.classList.remove('active-tab');
+        userBalancesSection.classList.remove('hidden');
+        userBalancesSection.classList.add('active-tab');
+        showUserBalancesBtn.classList.add('hidden');
+        showDepositsBtn.classList.remove('hidden');
+        updateUserBalancesDashboard(currentUserBalancePage); // Recarrega os dados da aba de saldos
+      }
+
+      showUserBalancesBtn.addEventListener('click', showUserBalancesView);
+      showDepositsBtn.addEventListener('click', showDepositsView);
+
+      // Inicializa o dashboard na aba de depósitos
+      showDepositsView();
     });
   </script>
 </body>
