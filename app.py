@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import os
 import logging
-import random
+# import random # Não é mais necessário para gerar dados fictícios
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
@@ -64,13 +64,13 @@ def data():
         logging.critical(f"Erro inesperado no endpoint /data: {e}")
         return jsonify({"error": "Ocorreu um erro inesperado no servidor."}), 500
 
-# Novo endpoint para saldos de usuários
+# Novo endpoint para saldos de usuários, agora buscando da API de depósitos
 @app.route("/user-balances")
 def user_balances():
     try:
         page = int(request.args.get("page", 1))
         page_size = int(request.args.get("pageSize", 10))
-        order_by = request.args.get("orderBy", "balance") # Default para balance
+        order_by = request.args.get("orderBy", "user.balance") # Default para balance
         order_direction = request.args.get("orderDirection", "DESC") # Default para DESC
     except ValueError as e:
         logging.error(f"Erro de validação de parâmetro: {e}")
@@ -78,47 +78,116 @@ def user_balances():
 
     logging.info(f"Requisição recebida para /user-balances com page={page}, pageSize={page_size}, orderBy={order_by}, orderDirection={order_direction}")
 
-    # Simular dados de usuários com saldos
-    total_users = 100
-    users = []
-    for i in range(1, total_users + 1):
-        balance = round(random.uniform(10.0, 5000.0), 2)
-        last_login = (datetime.now() - timedelta(days=random.randint(1, 30))).isoformat() + "Z"
-        users.append({
-            "id": f"user_{i}",
-            "name": f"Usuário {i}",
-            "email": f"usuario{i}@example.com",
-            "nickname": f"nick{i}",
-            "phone": f"+55{random.randint(10000000000, 99999999999)}",
-            "country": "BR",
-            "lastLoginAt": last_login,
-            "wallets": [
-                {"type": "REAL", "balance": balance},
-                {"type": "BONUS", "balance": round(random.uniform(0, 100), 2)}
-            ]
-        })
+    all_users_with_balances = {}
+    current_api_page = 1
+    external_api_page_size = 100 # Tamanho da página para buscar da API externa (pode ser ajustado)
+    has_more_data = True
+    total_deposits_fetched = 0
 
-    # Ordenar os usuários
-    if order_by == "balance":
-        users.sort(key=lambda x: x["wallets"][0]["balance"] if x["wallets"] and x["wallets"][0]["type"] == "REAL" else 0,
-                   reverse=(order_direction == "DESC"))
+    try:
+        headers = {"api-token": API_TOKEN}
+        while has_more_data:
+            params = {
+                "page": current_api_page,
+                "pageSize": external_api_page_size,
+                "status": "APPROVED", # Assumindo que saldos são relevantes para depósitos aprovados
+                "orderBy": "createdAt", # Ordenar por data de criação para tentar pegar o saldo mais recente
+                "orderDirection": "DESC" # Do mais recente para o mais antigo
+            }
+            logging.info(f"Fazendo requisição para API externa de depósitos para coletar saldos: {API_URL} com params: {params}")
+            response = requests.get(API_URL, headers=headers, params=params, timeout=20) # Aumentado o timeout
+            response.raise_for_status()
+            data = response.json()
+
+            deposits = data.get("data", [])
+            total_deposits_from_api = data.get("count", 0) # Total de registros na API externa
+
+            if not deposits:
+                has_more_data = False
+                break
+
+            total_deposits_fetched += len(deposits)
+
+            for deposit in deposits:
+                user_info = deposit.get("user")
+                if user_info and user_info.get("id"):
+                    user_id = user_info["id"]
+                    
+                    real_balance = None
+                    if user_info.get("wallets"):
+                        for wallet in user_info["wallets"]:
+                            if wallet.get("type") == "REAL":
+                                real_balance = wallet.get("balance")
+                                break
+
+                    # Se o saldo do usuário na API de depósitos é o "real, atual",
+                    # então a cada depósito, o user_info.wallets.balance deve refletir o saldo atual.
+                    # Como estamos buscando do mais recente para o mais antigo (orderBy createdAt DESC),
+                    # a primeira vez que vemos um usuário, seu saldo deve ser o mais atual.
+                    # Se o usuário já foi adicionado, não precisamos atualizar, pois já temos o mais recente.
+                    if user_id not in all_users_with_balances:
+                        all_users_with_balances[user_id] = {
+                            "id": user_id,
+                            "name": user_info.get("name"),
+                            "email": user_info.get("email"),
+                            "nickname": user_info.get("nickname"),
+                            "phone": user_info.get("phone"),
+                            "country": user_info.get("country"),
+                            "lastLoginAt": user_info.get("lastLoginAt"),
+                            "user.balance": real_balance # Armazena o saldo real diretamente
+                        }
+                    # Se o usuário já está no dicionário, e o saldo que temos é None, mas o novo não é, atualiza.
+                    elif all_users_with_balances[user_id].get("user.balance") is None and real_balance is not None:
+                         all_users_with_balances[user_id]["user.balance"] = real_balance
+
+
+            current_api_page += 1
+            # Condição de parada: se já processamos todos os depósitos conhecidos ou atingimos um limite prático
+            if total_deposits_fetched >= total_deposits_from_api and total_deposits_from_api > 0:
+                 has_more_data = False
+            if current_api_page > 50: # Limite de 50 páginas para evitar sobrecarga excessiva
+                logging.warning("Limite de 50 páginas da API externa atingido para coletar saldos de usuários. Pode não ter todos os usuários.")
+                has_more_data = False
+
+    except requests.exceptions.Timeout:
+        logging.error("Timeout ao conectar com a API externa para coletar saldos.")
+        return jsonify({"error": "A API externa demorou muito para responder ao coletar saldos."}), 504
+    except requests.exceptions.ConnectionError as e:
+        logging.error(f"Erro de conexão com a API externa ao coletar saldos: {e}")
+        return jsonify({"error": "Não foi possível conectar à API externa para coletar saldos."}), 503
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Erro ao buscar dados da API externa para coletar saldos: {e}, Resposta: {response.text if 'response' in locals() else 'N/A'}")
+        return jsonify({"error": "Erro ao buscar dados da API externa para coletar saldos", "details": str(e)}), 500
+    except Exception as e:
+        logging.critical(f"Erro inesperado no endpoint /user-balances: {e}")
+        return jsonify({"error": "Ocorreu um erro inesperado no servidor ao coletar saldos."}), 500
+
+    users_list = list(all_users_with_balances.values())
+
+    # Ordenar os usuários agregados
+    if order_by == "user.balance":
+        # Ordena por 'user.balance', tratando valores None (coloca-os no final)
+        users_list.sort(key=lambda x: x.get("user.balance") if x.get("user.balance") is not None else (-float('inf') if order_direction == "ASC" else float('inf')),
+                        reverse=(order_direction == "DESC"))
     elif order_by == "name":
-        users.sort(key=lambda x: x["name"], reverse=(order_direction == "DESC"))
+        users_list.sort(key=lambda x: x.get("name", "").lower(), reverse=(order_direction == "DESC"))
     elif order_by == "lastLoginAt":
-        users.sort(key=lambda x: x["lastLoginAt"], reverse=(order_direction == "DESC"))
+        users_list.sort(key=lambda x: x.get("lastLoginAt", ""), reverse=(order_direction == "DESC"))
 
-    # Paginação
+    total_users = len(users_list)
+    
+    # Aplicar paginação à lista ordenada
     start_index = (page - 1) * page_size
     end_index = start_index + page_size
-    paginated_users = users[start_index:end_index]
+    paginated_users = users_list[start_index:end_index]
 
     response_data = {
         "data": paginated_users,
         "currentPage": page,
         "lastPage": (total_users + page_size - 1) // page_size,
-        "count": total_users # Total de registros disponíveis
+        "count": total_users
     }
-    logging.info(f"Retornando {len(paginated_users)} usuários paginados.")
+    logging.info(f"Retornando {len(paginated_users)} usuários paginados com saldos da API de depósitos.")
     return jsonify(response_data)
 
 
