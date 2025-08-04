@@ -1,58 +1,195 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AsafeBroker Dashboard</title>
-    <script>
-        async function loadData(page = 1) {
-            const params = new URLSearchParams({
-                page,
-                pageSize: 10,
-                isInfluencer: 'false',
-                startDate: '2025-01-01T00:00:03.250Z',
-                endDate: '2025-12-31T23:19:03.250Z',
-                orderBy: 'amount',
-                orderDirection: 'DESC',
-                status: 'APPROVED'
-            });
-            const response = await fetch('/data?' + params);
-            const data = await response.json();
-            const tableBody = document.getElementById('data-body');
-            tableBody.innerHTML = '';
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AsafeBroker Dashboard</title>
 
-            data.data.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item.user.name}</td>
-                    <td>${item.user.email}</td>
-                    <td>${item.amount.toFixed(2)}</td>
-                    <td>${new Date(item.approvedAt).toLocaleDateString()}</td>
-                    <td>${item.status}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-            document.getElementById('page-info').innerText = `Página ${data.currentPage} de ${data.lastPage}`;
-        }
-    </script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body onload="loadData()">
-    <h1>AsafeBroker Dashboard</h1>
-    <table border="1" cellpadding="5" cellspacing="0">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Valor Depositado (USD)</th>
-                <th>Data</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="data-body"></tbody>
+<body class="bg-gray-50 min-h-screen p-6 font-sans">
+
+  <h1 class="text-3xl font-bold mb-6 text-gray-800">AsafeBroker Dashboard</h1>
+
+  <!-- Filtros -->
+  <section class="mb-6 flex flex-wrap gap-6 items-end">
+    <div>
+      <label for="startDate" class="block text-gray-700 font-semibold mb-1">Data início</label>
+      <input type="date" id="startDate" class="border rounded px-3 py-2" />
+    </div>
+    <div>
+      <label for="endDate" class="block text-gray-700 font-semibold mb-1">Data fim</label>
+      <input type="date" id="endDate" class="border rounded px-3 py-2" />
+    </div>
+    <div>
+      <label for="orderBy" class="block text-gray-700 font-semibold mb-1">Ordenar por</label>
+      <select id="orderBy" class="border rounded px-3 py-2">
+        <option value="amount">Valor</option>
+        <option value="createdAt">Data</option>
+        <option value="status">Status</option>
+      </select>
+    </div>
+    <div>
+      <label for="orderDirection" class="block text-gray-700 font-semibold mb-1">Direção</label>
+      <select id="orderDirection" class="border rounded px-3 py-2">
+        <option value="DESC">Descendente</option>
+        <option value="ASC">Ascendente</option>
+      </select>
+    </div>
+    <button id="btnFilter" class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">Filtrar</button>
+  </section>
+
+  <!-- Big Cards -->
+  <section id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></section>
+
+  <!-- Gráfico -->
+  <section class="bg-white p-6 rounded shadow mb-8">
+    <h2 class="text-xl font-semibold mb-4">Depósitos por Dia</h2>
+    <canvas id="depositChart" height="100"></canvas>
+  </section>
+
+  <!-- Tabela -->
+  <section class="overflow-x-auto bg-white rounded shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-mail</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Depositado (R$)</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+        </tr>
+      </thead>
+      <tbody id="dataTableBody" class="divide-y divide-gray-200"></tbody>
     </table>
-    <p id="page-info"></p>
-    <button onclick="loadData(1)">Página 1</button>
-    <button onclick="loadData()">Atualizar</button>
+  </section>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const startDate = document.getElementById("startDate");
+      const endDate = document.getElementById("endDate");
+      const orderBy = document.getElementById("orderBy");
+      const orderDirection = document.getElementById("orderDirection");
+      const btnFilter = document.getElementById("btnFilter");
+      const dataTableBody = document.getElementById("dataTableBody");
+      const summaryCards = document.getElementById("summaryCards");
+      const ctx = document.getElementById("depositChart").getContext("2d");
+      let chartInstance;
+
+      // Define datas iniciais: 1º Jan até hoje
+      const today = new Date().toISOString().split("T")[0];
+      startDate.value = "2025-01-01";
+      endDate.value = today;
+
+      async function fetchData() {
+        const params = new URLSearchParams({
+          startDate: new Date(startDate.value).toISOString(),
+          endDate: new Date(endDate.value).toISOString(),
+          orderBy: orderBy.value,
+          orderDirection: orderDirection.value,
+          status: "APPROVED"
+        });
+        const response = await fetch('/data?' + params.toString());
+        const result = await response.json();
+        return result.data || [];
+      }
+
+      function renderSummaryCards(data) {
+        const total = data.reduce((acc, cur) => acc + cur.amount, 0);
+        const count = data.length;
+        const maxDeposit = data.reduce((acc, cur) => cur.amount > acc ? cur.amount : acc, 0);
+
+        summaryCards.innerHTML = `
+          <div class="bg-blue-100 p-6 rounded shadow text-center">
+            <h3 class="text-lg font-semibold text-blue-800">Total Depositado</h3>
+            <p class="text-3xl font-bold mt-2 text-blue-900">R$ ${total.toFixed(2)}</p>
+          </div>
+          <div class="bg-green-100 p-6 rounded shadow text-center">
+            <h3 class="text-lg font-semibold text-green-800">Número de Depósitos</h3>
+            <p class="text-3xl font-bold mt-2 text-green-900">${count}</p>
+          </div>
+          <div class="bg-yellow-100 p-6 rounded shadow text-center">
+            <h3 class="text-lg font-semibold text-yellow-800">Maior Depósito</h3>
+            <p class="text-3xl font-bold mt-2 text-yellow-900">R$ ${maxDeposit.toFixed(2)}</p>
+          </div>
+        `;
+      }
+
+      function renderChart(data) {
+        const grouped = data.reduce((acc, item) => {
+          const day = new Date(item.createdAt).toLocaleDateString();
+          acc[day] = (acc[day] || 0) + item.amount;
+          return acc;
+        }, {});
+
+        const labels = Object.keys(grouped);
+        const values = Object.values(grouped);
+
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Depósitos por dia (R$)',
+              data: values,
+              borderColor: '#2563EB',
+              backgroundColor: 'rgba(37, 99, 235, 0.2)',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              borderWidth: 3,
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: true },
+              tooltip: { mode: 'index', intersect: false },
+            },
+            interaction: {
+              mode: 'nearest',
+              axis: 'x',
+              intersect: false
+            },
+            scales: {
+              y: { beginAtZero: true, ticks: { callback: val => 'R$ ' + val } },
+              x: { ticks: { maxRotation: 45, minRotation: 45 } }
+            }
+          }
+        });
+      }
+
+      function renderTable(data) {
+        dataTableBody.innerHTML = data.map(item => `
+          <tr class="hover:bg-gray-100 cursor-pointer">
+            <td class="px-6 py-4 whitespace-nowrap">${item.user.name}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-blue-600 underline">${item.user.email}</td>
+            <td class="px-6 py-4 whitespace-nowrap">R$ ${item.amount.toFixed(2)}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${new Date(item.createdAt).toLocaleString()}</td>
+            <td class="px-6 py-4 whitespace-nowrap capitalize">${item.status.toLowerCase()}</td>
+          </tr>
+        `).join('');
+      }
+
+      async function updateDashboard() {
+        const data = await fetchData();
+        renderSummaryCards(data);
+        renderChart(data);
+        renderTable(data);
+      }
+
+      btnFilter.addEventListener("click", updateDashboard);
+
+      // Carregar dados inicial
+      updateDashboard();
+    });
+  </script>
 </body>
 </html>
