@@ -4,17 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AsafeBroker Dashboard</title>
-
   <!-- TailwindCSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-50 min-h-screen p-6 font-sans">
-
   <h1 class="text-3xl font-bold mb-6 text-gray-800">AsafeBroker Dashboard</h1>
-
   <!-- Filtros -->
   <section class="mb-6 flex flex-wrap gap-6 items-end">
     <div>
@@ -43,16 +39,13 @@
     </div>
     <button id="btnFilter" class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">Filtrar</button>
   </section>
-
   <!-- Big Cards -->
   <section id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></section>
-
   <!-- Gráfico -->
   <section class="bg-white p-6 rounded shadow mb-8">
     <h2 class="text-xl font-semibold mb-4">Depósitos por Dia</h2>
     <canvas id="depositChart" height="100"></canvas>
   </section>
-
   <!-- Tabela -->
   <section class="overflow-x-auto bg-white rounded shadow mb-6">
     <table class="min-w-full divide-y divide-gray-200">
@@ -68,14 +61,12 @@
       <tbody id="dataTableBody" class="divide-y divide-gray-200"></tbody>
     </table>
   </section>
-
   <!-- Paginação -->
   <section class="flex justify-center gap-4 items-center">
     <button id="prevPage" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50" disabled>Anterior</button>
     <span id="pageInfo" class="font-semibold"></span>
     <button id="nextPage" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50" disabled>Próximo</button>
   </section>
-
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const startDate = document.getElementById("startDate");
@@ -89,43 +80,47 @@
       const prevPageBtn = document.getElementById("prevPage");
       const nextPageBtn = document.getElementById("nextPage");
       const ctx = document.getElementById("depositChart").getContext("2d");
-
       let chartInstance;
       let currentPage = 1;
       let lastPage = 1;
-
       // Datas padrão: 1º Jan até hoje
       const today = new Date().toISOString().split("T")[0];
       startDate.value = "2025-01-01";
       endDate.value = today;
 
       async function fetchData(page = 1) {
+        // Para startDate, use o início do dia
+        const isoStartDate = new Date(startDate.value).toISOString();
+
+        // Para endDate, defina-o para o final do dia selecionado
+        // Isso garante que todos os dados para aquele dia sejam incluídos,
+        // independentemente de problemas de fuso horário.
+        const endOfDay = new Date(endDate.value);
+        endOfDay.setHours(23, 59, 59, 999); // Define para 23:59:59.999 no fuso horário local
+        const isoEndDate = endOfDay.toISOString();
+
         const params = new URLSearchParams({
           page,
           pageSize: 10,
           isInfluencer: false,
-          startDate: new Date(startDate.value).toISOString(),
-          endDate: new Date(endDate.value).toISOString(),
+          startDate: isoStartDate,
+          endDate: isoEndDate, // Use a data final modificada
           orderBy: orderBy.value,
           orderDirection: orderDirection.value,
           status: "APPROVED"
         });
         const response = await fetch('/data?' + params.toString());
         const result = await response.json();
-
         if(result.error){
           alert("Erro ao carregar dados: " + result.error);
           return { data: [], currentPage: 1, lastPage: 1 };
         }
-
         return result;
       }
-
       function renderSummaryCards(data) {
         const total = data.reduce((acc, cur) => acc + cur.amount, 0);
-        const count = data.length;
+        const count = data.length; // Note: This is count for current page, not total from API
         const maxDeposit = data.reduce((acc, cur) => cur.amount > acc ? cur.amount : acc, 0);
-
         summaryCards.innerHTML = `
           <div class="bg-blue-100 p-6 rounded shadow text-center">
             <h3 class="text-lg font-semibold text-blue-800">Total Depositado</h3>
@@ -141,7 +136,6 @@
           </div>
         `;
       }
-
       function renderChart(data) {
         const grouped = data.reduce((acc, item) => {
           // Agrupa por data aprovada para ficar consistente com a tabela
@@ -149,12 +143,9 @@
           acc[day] = (acc[day] || 0) + item.amount;
           return acc;
         }, {});
-
         const labels = Object.keys(grouped);
         const values = Object.values(grouped);
-
         if (chartInstance) chartInstance.destroy();
-
         chartInstance = new Chart(ctx, {
           type: 'line',
           data: {
@@ -189,7 +180,6 @@
           }
         });
       }
-
       function renderTable(data) {
         dataTableBody.innerHTML = data.map(item => `
           <tr class="hover:bg-gray-100 cursor-pointer">
@@ -201,39 +191,32 @@
           </tr>
         `).join('');
       }
-
       async function updateDashboard(page = 1) {
         const result = await fetchData(page);
         const data = result.data || [];
         currentPage = result.currentPage || 1;
         lastPage = result.lastPage || 1;
-
         renderSummaryCards(data);
         renderChart(data);
         renderTable(data);
         updatePaginationButtons();
       }
-
       function updatePaginationButtons() {
         pageInfo.textContent = `Página ${currentPage} de ${lastPage}`;
         prevPageBtn.disabled = currentPage <= 1;
         nextPageBtn.disabled = currentPage >= lastPage;
       }
-
       prevPageBtn.addEventListener("click", () => {
         if(currentPage > 1) {
           updateDashboard(currentPage - 1);
         }
       });
-
       nextPageBtn.addEventListener("click", () => {
         if(currentPage < lastPage) {
           updateDashboard(currentPage + 1);
         }
       });
-
       btnFilter.addEventListener("click", () => updateDashboard(1));
-
       // Carrega dados iniciais
       updateDashboard(1);
     });
