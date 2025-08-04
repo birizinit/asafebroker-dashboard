@@ -144,7 +144,7 @@
     <!-- Filtros -->
     <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
       <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Filtros de Depósitos</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 items-end"> <!-- Alterado para lg:grid-cols-6 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 items-end">
         <div>
           <label for="startDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data início</label>
           <input type="date" id="startDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
@@ -170,7 +170,7 @@
           </select>
         </div>
         <div>
-          <label for="pageSize" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Registros por Página</label> <!-- Novo -->
+          <label for="pageSize" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Registros por Página</label>
           <select id="pageSize" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
             <option value="10">10</option>
             <option value="25">25</option>
@@ -272,7 +272,7 @@
       const endDateInput = document.getElementById("endDate");
       const orderBySelect = document.getElementById("orderBy");
       const orderDirectionSelect = document.getElementById("orderDirection");
-      const pageSizeSelect = document.getElementById("pageSize"); // Novo
+      const pageSizeSelect = document.getElementById("pageSize");
       const btnFilter = document.getElementById("btnFilter");
       const btnClearFilters = document.getElementById("btnClearFilters");
       const dataTableHead = document.getElementById("dataTableHead");
@@ -337,7 +337,6 @@
       startDateInput.value = defaultStartDate;
       endDateInput.value = today;
 
-      // Inicializa pageSize do localStorage ou padrão
       const savedPageSize = localStorage.getItem('pageSize') || '10';
       pageSizeSelect.value = savedPageSize;
 
@@ -346,8 +345,8 @@
         endDateInput.value = today;
         orderBySelect.value = "amount";
         orderDirectionSelect.value = "DESC";
-        pageSizeSelect.value = '10'; // Reseta o pageSize também
-        localStorage.setItem('pageSize', '10'); // Salva o reset
+        pageSizeSelect.value = '10';
+        localStorage.setItem('pageSize', '10');
         updateDashboard(1);
       });
 
@@ -528,7 +527,7 @@
 
         const params = new URLSearchParams({
           page,
-          pageSize: pageSizeSelect.value, // Usando o valor do select
+          pageSize: pageSizeSelect.value,
           isInfluencer: false,
           startDate: isoStartDate,
           endDate: isoEndDate,
@@ -547,29 +546,30 @@
         } catch (error) {
           alert("Erro ao carregar dados: " + error.message);
           console.error("Erro ao buscar dados:", error);
-          return { data: [], currentPage: 1, lastPage: 1, count: 0, total_amount_all_pages: 0, max_deposit_all_pages: 0 }; // Retorna valores padrão para evitar erros
+          // Retorna valores padrão para evitar erros no frontend
+          return { data: [], currentPage: 1, lastPage: 1, count: 0 };
         } finally {
           loadingIndicator.classList.add('hidden');
         }
       }
 
-      // renderSummaryCards agora recebe o objeto 'result' completo
-      function renderSummaryCards(result) {
-        const totalAmount = result.total_amount_all_pages || 0; // Usando o total agregado
-        const totalCount = result.count || 0; // Usando o count total da API
-        const maxDeposit = result.max_deposit_all_pages || 0; // Usando o max agregado
+      // renderSummaryCards agora usa os dados da página atual
+      function renderSummaryCards(data) {
+        const total = data.reduce((acc, cur) => acc + cur.amount, 0);
+        const count = data.length; // Agora é a contagem da página atual
+        const maxDeposit = data.reduce((acc, cur) => cur.amount > acc ? cur.amount : acc, 0);
 
         summaryCards.innerHTML = `
           <div class="bg-blue-100 dark:bg-blue-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">Total Depositado</h3>
-            <p class="text-3xl font-bold mt-2 text-blue-900 dark:text-blue-100">US$ ${totalAmount.toFixed(2)}</p>
+            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">Total Depositado (página)</h3> <!-- Texto ajustado -->
+            <p class="text-3xl font-bold mt-2 text-blue-900 dark:text-blue-100">US$ ${total.toFixed(2)}</p>
           </div>
           <div class="bg-green-100 dark:bg-green-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">Número de Depósitos</h3>
-            <p class="text-3xl font-bold mt-2 text-green-900 dark:text-green-100">${totalCount}</p>
+            <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">Depósitos (página)</h3> <!-- Texto ajustado -->
+            <p class="text-3xl font-bold mt-2 text-green-900 dark:text-green-100">${count}</p>
           </div>
           <div class="bg-yellow-100 dark:bg-yellow-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200">Maior Depósito</h3>
+            <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200">Maior Depósito (página)</h3> <!-- Texto ajustado -->
             <p class="text-3xl font-bold mt-2 text-yellow-900 dark:text-yellow-100">US$ ${maxDeposit.toFixed(2)}</p>
           </div>
         `;
@@ -649,7 +649,7 @@
         const data = result.data || [];
         currentPage = result.currentPage || 1;
         lastPage = result.lastPage || 1;
-        renderSummaryCards(result); // Passa o objeto 'result' completo
+        renderSummaryCards(data); // Passa apenas 'data' para os cards
         renderChart(data);
         renderTable(data);
         updatePaginationButtons();
@@ -674,10 +674,9 @@
       });
 
       btnFilter.addEventListener("click", () => updateDashboard(1));
-      // Adiciona listener para o select de pageSize
       pageSizeSelect.addEventListener("change", () => {
-        localStorage.setItem('pageSize', pageSizeSelect.value); // Salva a preferência
-        updateDashboard(1); // Reseta para a primeira página ao mudar o tamanho da página
+        localStorage.setItem('pageSize', pageSizeSelect.value);
+        updateDashboard(1);
       });
 
       updateDashboard(1);
