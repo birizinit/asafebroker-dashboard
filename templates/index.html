@@ -380,6 +380,7 @@
       // --- Elementos Comuns ---
       const htmlElement = document.documentElement;
       const loadingIndicator = document.getElementById("loadingIndicator");
+      console.log("Debug: loadingIndicator element:", loadingIndicator); // Adicionado para depuração
       const toastContainer = document.getElementById("toastContainer");
 
       // --- Elementos da Aba de Depósitos ---
@@ -446,25 +447,63 @@
         }, 3000);
       }
 
-      function showLoading(show) {
+    function showLoading(show) {
+      if (loadingIndicator) { // Verifica se o elemento existe
         if (show) {
           loadingIndicator.classList.remove('hidden');
-          // Adiciona skeletons
-          document.querySelectorAll('.skeleton-card').forEach(el => el.classList.add('skeleton'));
-          document.querySelector('#depositChart').classList.add('hidden');
-          document.querySelector('#depositChart').previousElementSibling.classList.remove('hidden'); // Show chart skeleton
-          document.querySelectorAll('#dataTableBody tr').forEach(el => el.classList.add('skeleton'));
-          document.querySelectorAll('#userBalancesTableBody tr').forEach(el => el.classList.add('skeleton'));
         } else {
           loadingIndicator.classList.add('hidden');
-          // Remove skeletons
-          document.querySelectorAll('.skeleton-card').forEach(el => el.classList.remove('skeleton'));
-          document.querySelector('#depositChart').classList.remove('hidden');
-          document.querySelector('#depositChart').previousElementSibling.classList.add('hidden'); // Hide chart skeleton
-          document.querySelectorAll('#dataTableBody tr').forEach(el => el.classList.remove('skeleton'));
-          document.querySelectorAll('#userBalancesTableBody tr').forEach(el => el.classList.remove('skeleton'));
         }
+      } else {
+        console.warn("Elemento com ID 'loadingIndicator' não encontrado. O indicador de carregamento não será exibido.");
       }
+
+      // Aplica skeletons aos cards
+      document.querySelectorAll('.skeleton-card').forEach(el => {
+        if (show) {
+          el.classList.add('skeleton');
+        } else {
+          el.classList.remove('skeleton');
+        }
+      });
+
+      // Lida com o skeleton do gráfico de depósitos
+      const depositChartEl = document.getElementById('depositChart');
+      // O skeleton do gráfico é o elemento irmão anterior ao canvas do gráfico
+      const depositChartSkeleton = depositChartEl ? depositChartEl.previousElementSibling : null;
+
+      if (depositChartEl && depositChartSkeleton) {
+        if (show) {
+          depositChartEl.classList.add('hidden');
+          depositChartSkeleton.classList.remove('hidden');
+        } else {
+          depositChartEl.classList.remove('hidden');
+          depositChartSkeleton.classList.add('hidden');
+        }
+      } else if (!depositChartEl) {
+        console.warn("Elemento com ID 'depositChart' não encontrado.");
+      } else if (!depositChartSkeleton) {
+        console.warn("Elemento skeleton para 'depositChart' não encontrado (esperado como irmão anterior).");
+      }
+
+      // Aplica skeletons às linhas da tabela de dados
+      document.querySelectorAll('#dataTableBody tr').forEach(el => {
+        if (show) {
+          el.classList.add('skeleton');
+        } else {
+          el.classList.remove('skeleton');
+        }
+      });
+
+      // Aplica skeletons às linhas da tabela de saldos de usuários
+      document.querySelectorAll('#userBalancesTableBody tr').forEach(el => {
+        if (show) {
+          el.classList.add('skeleton');
+        } else {
+          el.classList.remove('skeleton');
+        }
+      });
+    }
 
       // Função auxiliar para acessar valores aninhados
       function getNestedValue(obj, path) {
