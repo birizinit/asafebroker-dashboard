@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br" class="light"> <!-- Adicionado 'light' como classe padrão para o tema -->
+<html lang="pt-br" class="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -18,7 +18,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.6); /* Fundo mais escuro para o modal */
+      background-color: rgba(0, 0, 0, 0.6);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -27,33 +27,33 @@
     .modal-content {
       background-color: white;
       padding: 2rem;
-      border-radius: 0.75rem; /* Cantos mais arredondados */
-      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* Sombra mais pronunciada */
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
       max-width: 90%;
       max-height: 90%;
       overflow-y: auto;
       position: relative;
-      color: #333; /* Cor de texto padrão para o modal */
+      color: #333;
     }
     .modal-close-button {
       position: absolute;
       top: 1rem;
       right: 1rem;
-      font-size: 1.8rem; /* Ícone de fechar maior */
+      font-size: 1.8rem;
       cursor: pointer;
       color: #666;
     }
 
     /* Estilos para o tema escuro */
     html.dark {
-      background-color: #1a202c; /* Cor de fundo escura */
-      color: #e2e8f0; /* Cor de texto clara */
+      background-color: #1a202c;
+      color: #e2e8f0;
     }
     html.dark .bg-gray-50 {
       background-color: #1a202c;
     }
     html.dark .bg-white {
-      background-color: #2d3748; /* Fundo de cards e seções no modo escuro */
+      background-color: #2d3748;
       color: #e2e8f0;
     }
     html.dark .text-gray-800 {
@@ -78,7 +78,7 @@
       background-color: #4a5568;
     }
     html.dark .hover\:bg-gray-300:hover {
-      background-color: #667eea; /* Um azul mais escuro para hover em botões cinzas */
+      background-color: #667eea;
     }
     html.dark .modal-content {
       background-color: #2d3748;
@@ -94,7 +94,7 @@
       color: #a0aec0;
     }
     html.dark .text-blue-600 {
-      color: #63b3ed; /* Azul mais claro para links no dark mode */
+      color: #63b3ed;
     }
     html.dark .bg-blue-100 {
       background-color: #2a4365;
@@ -144,7 +144,7 @@
     <!-- Filtros -->
     <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
       <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Filtros de Depósitos</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 items-end">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 items-end"> <!-- Alterado para lg:grid-cols-6 -->
         <div>
           <label for="startDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data início</label>
           <input type="date" id="startDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
@@ -167,6 +167,15 @@
           <select id="orderDirection" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
             <option value="DESC">Descendente</option>
             <option value="ASC">Ascendente</option>
+          </select>
+        </div>
+        <div>
+          <label for="pageSize" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Registros por Página</label> <!-- Novo -->
+          <select id="pageSize" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
           </select>
         </div>
         <div class="flex gap-4">
@@ -257,15 +266,15 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // Inicializa Lucide Icons
       lucide.createIcons();
 
       const startDateInput = document.getElementById("startDate");
       const endDateInput = document.getElementById("endDate");
       const orderBySelect = document.getElementById("orderBy");
       const orderDirectionSelect = document.getElementById("orderDirection");
+      const pageSizeSelect = document.getElementById("pageSize"); // Novo
       const btnFilter = document.getElementById("btnFilter");
-      const btnClearFilters = document.getElementById("btnClearFilters"); // Novo
+      const btnClearFilters = document.getElementById("btnClearFilters");
       const dataTableHead = document.getElementById("dataTableHead");
       const dataTableBody = document.getElementById("dataTableBody");
       const summaryCards = document.getElementById("summaryCards");
@@ -273,12 +282,11 @@
       const prevPageBtn = document.getElementById("prevPage");
       const nextPageBtn = document.getElementById("nextPage");
       const ctx = document.getElementById("depositChart").getContext("2d");
-      const loadingIndicator = document.getElementById("loadingIndicator"); // Novo
+      const loadingIndicator = document.getElementById("loadingIndicator");
       let chartInstance;
       let currentPage = 1;
       let lastPage = 1;
 
-      // Elementos do Modal
       const btnConfigureColumns = document.getElementById("btnConfigureColumns");
       const columnConfigModal = document.getElementById("columnConfigModal");
       const closeModalBtn = document.getElementById("closeModalBtn");
@@ -287,13 +295,11 @@
       const selectedColumnsList = document.getElementById("selectedColumnsList");
       const availableColumnsCheckboxes = document.getElementById("availableColumnsCheckboxes");
 
-      // --- Dark Mode Toggle ---
       const themeToggle = document.getElementById("themeToggle");
       const htmlElement = document.documentElement;
       const lightIcon = document.querySelector('.light-icon');
       const darkIcon = document.querySelector('.dark-icon');
 
-      // Carrega o tema salvo ou define o padrão
       const savedTheme = localStorage.getItem('theme') || 'light';
       htmlElement.classList.add(savedTheme);
       if (savedTheme === 'dark') {
@@ -318,7 +324,6 @@
           lightIcon.classList.remove('hidden');
           darkIcon.classList.add('hidden');
         }
-        // Atualiza o gráfico para se adaptar ao novo tema (cores de texto, etc.)
         if (chartInstance) {
           chartInstance.options.scales.y.ticks.color = htmlElement.classList.contains('dark') ? '#e2e8f0' : '#333';
           chartInstance.options.scales.x.ticks.color = htmlElement.classList.contains('dark') ? '#e2e8f0' : '#333';
@@ -327,21 +332,25 @@
         }
       });
 
-      // --- Datas padrão e Limpar Filtros ---
       const defaultStartDate = "2025-01-01";
       const today = new Date().toISOString().split("T")[0];
       startDateInput.value = defaultStartDate;
       endDateInput.value = today;
+
+      // Inicializa pageSize do localStorage ou padrão
+      const savedPageSize = localStorage.getItem('pageSize') || '10';
+      pageSizeSelect.value = savedPageSize;
 
       btnClearFilters.addEventListener("click", () => {
         startDateInput.value = defaultStartDate;
         endDateInput.value = today;
         orderBySelect.value = "amount";
         orderDirectionSelect.value = "DESC";
+        pageSizeSelect.value = '10'; // Reseta o pageSize também
+        localStorage.setItem('pageSize', '10'); // Salva o reset
         updateDashboard(1);
       });
 
-      // --- Configuração de Colunas ---
       const availableColumns = [
         { key: 'id', label: 'ID Depósito' },
         { key: 'tenantId', label: 'ID Tenant' },
@@ -370,10 +379,9 @@
         { key: 'user.phone', label: 'Telefone Usuário' },
         { key: 'user.country', label: 'País Usuário' },
         { key: 'user.lastLoginAt', label: 'Último Login Usuário' },
-        { key: 'user.balance', label: 'Saldo Usuário (Real)' }, // Exemplo de acesso a wallet
+        { key: 'user.balance', label: 'Saldo Usuário (Real)' },
       ];
 
-      // Colunas padrão visíveis e na ordem inicial (carrega do localStorage se existir)
       let selectedColumnKeys = JSON.parse(localStorage.getItem('selectedColumnKeys')) || [
         'user.name',
         'user.email',
@@ -382,9 +390,7 @@
         'status',
       ];
 
-      // Função auxiliar para acessar valores aninhados
       function getNestedValue(obj, path) {
-        // Adiciona tratamento para 'user.balance' que está dentro de 'user.wallets'
         if (path === 'user.balance' && obj && obj.user && obj.user.wallets) {
           const realWallet = obj.user.wallets.find(wallet => wallet.type === 'REAL');
           return realWallet ? realWallet.balance : null;
@@ -392,7 +398,6 @@
         return path.split('.').reduce((acc, part) => acc && acc[part], obj);
       }
 
-      // Função para formatar valores de célula
       function formatCellValue(key, value) {
         if (value === null || value === undefined) return '';
 
@@ -403,11 +408,11 @@
           return `R$ ${value.toFixed(2)}`;
         }
         if (key === 'user.balance' && typeof value === 'number') {
-          return `US$ ${value.toFixed(2)}`; // Assumindo que o saldo da carteira REAL é em USD
+          return `US$ ${value.toFixed(2)}`;
         }
         if (key.includes('At') && typeof value === 'string') {
           try {
-            return new Date(value).toLocaleString('pt-BR'); // Formato brasileiro
+            return new Date(value).toLocaleString('pt-BR');
           } catch (e) {
             return value;
           }
@@ -428,7 +433,6 @@
         selectedColumnsList.innerHTML = '';
         availableColumnsCheckboxes.innerHTML = '';
 
-        // Renderizar colunas selecionadas (com botões de reordenação)
         selectedColumnKeys.forEach((key, index) => {
           const column = availableColumns.find(col => col.key === key);
           if (!column) return;
@@ -448,9 +452,8 @@
           `;
           selectedColumnsList.appendChild(div);
         });
-        lucide.createIcons(); // Re-renderiza ícones para os novos botões
+        lucide.createIcons();
 
-        // Renderizar checkboxes para todas as colunas disponíveis
         availableColumns.forEach(column => {
           const div = document.createElement('div');
           div.className = 'flex items-center gap-2';
@@ -461,7 +464,6 @@
           availableColumnsCheckboxes.appendChild(div);
         });
 
-        // Adicionar listeners para checkboxes
         document.querySelectorAll('.column-checkbox').forEach(checkbox => {
           checkbox.onchange = (e) => {
             const key = e.target.value;
@@ -472,14 +474,13 @@
             } else {
               selectedColumnKeys = selectedColumnKeys.filter(k => k !== key);
             }
-            renderColumnConfigModal(); // Re-renderiza para atualizar botões de mover
+            renderColumnConfigModal();
           };
         });
 
-        // Adicionar listeners para botões de mover
         document.querySelectorAll('.move-column-btn').forEach(button => {
           button.onclick = (e) => {
-            const keyToMove = e.currentTarget.dataset.key; // Usar currentTarget para pegar o elemento com o listener
+            const keyToMove = e.currentTarget.dataset.key;
             const direction = e.currentTarget.dataset.direction;
             const currentIndex = selectedColumnKeys.indexOf(keyToMove);
 
@@ -490,7 +491,7 @@
               [selectedColumnKeys[currentIndex], selectedColumnKeys[currentIndex + 1]] =
               [selectedColumnKeys[currentIndex + 1], selectedColumnKeys[currentIndex]];
             }
-            renderColumnConfigModal(); // Re-renderiza para atualizar a ordem e botões
+            renderColumnConfigModal();
           };
         });
       }
@@ -505,7 +506,6 @@
       });
 
       cancelColumnConfigBtn.addEventListener("click", () => {
-        // Recarrega as colunas salvas para descartar as alterações
         selectedColumnKeys = JSON.parse(localStorage.getItem('selectedColumnKeys')) || [
           'user.name', 'user.email', 'amount', 'approvedAt', 'status'
         ];
@@ -518,10 +518,8 @@
         columnConfigModal.classList.add("hidden");
       });
 
-      // --- Funções de Dados e Renderização ---
-
       async function fetchData(page = 1) {
-        loadingIndicator.classList.remove('hidden'); // Mostra o indicador de carregamento
+        loadingIndicator.classList.remove('hidden');
 
         const isoStartDate = new Date(startDateInput.value).toISOString();
         const endOfDay = new Date(endDateInput.value);
@@ -530,7 +528,7 @@
 
         const params = new URLSearchParams({
           page,
-          pageSize: 10,
+          pageSize: pageSizeSelect.value, // Usando o valor do select
           isInfluencer: false,
           startDate: isoStartDate,
           endDate: isoEndDate,
@@ -549,24 +547,26 @@
         } catch (error) {
           alert("Erro ao carregar dados: " + error.message);
           console.error("Erro ao buscar dados:", error);
-          return { data: [], currentPage: 1, lastPage: 1 };
+          return { data: [], currentPage: 1, lastPage: 1, count: 0, total_amount_all_pages: 0, max_deposit_all_pages: 0 }; // Retorna valores padrão para evitar erros
         } finally {
-          loadingIndicator.classList.add('hidden'); // Esconde o indicador de carregamento
+          loadingIndicator.classList.add('hidden');
         }
       }
 
-      function renderSummaryCards(data) {
-        const total = data.reduce((acc, cur) => acc + cur.amount, 0);
-        const count = data.length;
-        const maxDeposit = data.reduce((acc, cur) => cur.amount > acc ? cur.amount : acc, 0);
+      // renderSummaryCards agora recebe o objeto 'result' completo
+      function renderSummaryCards(result) {
+        const totalAmount = result.total_amount_all_pages || 0; // Usando o total agregado
+        const totalCount = result.count || 0; // Usando o count total da API
+        const maxDeposit = result.max_deposit_all_pages || 0; // Usando o max agregado
+
         summaryCards.innerHTML = `
           <div class="bg-blue-100 dark:bg-blue-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
             <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">Total Depositado</h3>
-            <p class="text-3xl font-bold mt-2 text-blue-900 dark:text-blue-100">US$ ${total.toFixed(2)}</p>
+            <p class="text-3xl font-bold mt-2 text-blue-900 dark:text-blue-100">US$ ${totalAmount.toFixed(2)}</p>
           </div>
           <div class="bg-green-100 dark:bg-green-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
             <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">Número de Depósitos</h3>
-            <p class="text-3xl font-bold mt-2 text-green-900 dark:text-green-100">${count}</p>
+            <p class="text-3xl font-bold mt-2 text-green-900 dark:text-green-100">${totalCount}</p>
           </div>
           <div class="bg-yellow-100 dark:bg-yellow-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
             <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200">Maior Depósito</h3>
@@ -634,7 +634,7 @@
         dataTableHead.appendChild(headerRow);
 
         dataTableBody.innerHTML = data.map((item, rowIndex) => {
-          const rowClass = rowIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700'; // Linhas zebradas
+          const rowClass = rowIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700';
           const cells = selectedColumnKeys.map(key => {
             const value = getNestedValue(item, key);
             const formattedValue = formatCellValue(key, value);
@@ -649,7 +649,7 @@
         const data = result.data || [];
         currentPage = result.currentPage || 1;
         lastPage = result.lastPage || 1;
-        renderSummaryCards(data);
+        renderSummaryCards(result); // Passa o objeto 'result' completo
         renderChart(data);
         renderTable(data);
         updatePaginationButtons();
@@ -674,8 +674,12 @@
       });
 
       btnFilter.addEventListener("click", () => updateDashboard(1));
+      // Adiciona listener para o select de pageSize
+      pageSizeSelect.addEventListener("change", () => {
+        localStorage.setItem('pageSize', pageSizeSelect.value); // Salva a preferência
+        updateDashboard(1); // Reseta para a primeira página ao mudar o tamanho da página
+      });
 
-      // Carrega dados iniciais
       updateDashboard(1);
     });
   </script>
