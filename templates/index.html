@@ -4,18 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AsafeBroker Dashboard</title>
-  <!-- Google Fonts: Inter -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- TailwindCSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Lucide Icons CDN -->
+  <!-- Lucide Icons CDN (para ícones modernos) -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
     /* Estilos para o modal */
     .modal-overlay {
       position: fixed;
@@ -49,87 +44,91 @@
       color: #666;
     }
 
-    /* Estilos para o toast */
-    .toast-container {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      z-index: 1002;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .toast {
-      padding: 0.75rem 1.25rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      color: white;
-      opacity: 0;
-      transform: translateY(-20px);
-      animation: fadeInOut 3s forwards;
-    }
-    .toast.success { background-color: #4CAF50; }
-    .toast.error { background-color: #F44336; }
-    .toast.info { background-color: #2196F3; }
-
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translateY(-20px); }
-      10% { opacity: 1; transform: translateY(0); }
-      90% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-20px); }
-    }
-
     /* Estilos para o tema escuro */
     html.dark {
       background-color: #1a202c;
       color: #e2e8f0;
     }
-    html.dark .bg-gray-50 { background-color: #1a202c; }
-    html.dark .bg-white { background-color: #2d3748; color: #e2e8f0; }
-    html.dark .text-gray-800 { color: #e2e8f0; }
-    html.dark .text-gray-700 { color: #cbd5e0; }
-    html.dark .border { border-color: #4a5568; }
-    html.dark .bg-gray-100 { background-color: #4a5568; }
-    html.dark .divide-gray-200 > * + * { border-color: #4a5568; }
-    html.dark .hover\:bg-gray-100:hover { background-color: #4a5568; }
-    html.dark .bg-gray-200 { background-color: #4a5568; }
-    html.dark .hover\:bg-gray-300:hover { background-color: #667eea; }
-    html.dark .modal-content { background-color: #2d3748; color: #e2e8f0; }
-    html.dark .modal-close-button { color: #cbd5e0; }
-    html.dark .text-gray-500 { color: #a0aec0; }
-    html.dark .text-blue-600 { color: #63b3ed; }
-    html.dark .bg-blue-100 { background-color: #2a4365; }
-    html.dark .text-blue-800 { color: #90cdf4; }
-    html.dark .text-blue-900 { color: #bee3f8; }
-    html.dark .bg-green-100 { background-color: #2c5282; }
-    html.dark .text-green-800 { color: #9ae6b4; }
-    html.dark .text-green-900 { color: #c6f6d5; }
-    html.dark .bg-yellow-100 { background-color: #43412a; }
-    html.dark .text-yellow-800 { color: #faf089; }
-    html.dark .text-yellow-900 { color: #fefcbf; }
-    html.dark .bg-gray-50 { background-color: #2d3748; } /* Para linhas zebradas */
-    html.dark .bg-gray-700 { background-color: #4a5568; } /* Para inputs e selects */
-
-    /* Skeleton Loading Effect */
-    .skeleton {
-      animation: pulse 1.5s infinite ease-in-out;
-      background-color: #e2e8f0; /* Light mode */
-      border-radius: 0.25rem;
+    html.dark .bg-gray-50 {
+      background-color: #1a202c;
     }
-    html.dark .skeleton {
-      background-color: #4a5568; /* Dark mode */
+    html.dark .bg-white {
+      background-color: #2d3748;
+      color: #e2e8f0;
     }
-    @keyframes pulse {
-      0% { opacity: 0.6; }
-      50% { opacity: 1; }
-      100% { opacity: 0.6; }
+    html.dark .text-gray-800 {
+      color: #e2e8f0;
+    }
+    html.dark .text-gray-700 {
+      color: #cbd5e0;
+    }
+    html.dark .border {
+      border-color: #4a5568;
+    }
+    html.dark .bg-gray-100 {
+      background-color: #4a5568;
+    }
+    html.dark .divide-gray-200 > * + * {
+      border-color: #4a5568;
+    }
+    html.dark .hover\:bg-gray-100:hover {
+      background-color: #4a5568;
+    }
+    html.dark .bg-gray-200 {
+      background-color: #4a5568;
+    }
+    html.dark .hover\:bg-gray-300:hover {
+      background-color: #667eea;
+    }
+    html.dark .modal-content {
+      background-color: #2d3748;
+      color: #e2e8f0;
+    }
+    html.dark .modal-close-button {
+      color: #cbd5e0;
+    }
+    html.dark .bg-gray-50 {
+      background-color: #2d3748;
+    }
+    html.dark .text-gray-500 {
+      color: #a0aec0;
+    }
+    html.dark .text-blue-600 {
+      color: #63b3ed;
+    }
+    html.dark .bg-blue-100 {
+      background-color: #2a4365;
+    }
+    html.dark .text-blue-800 {
+      color: #90cdf4;
+    }
+    html.dark .text-blue-900 {
+      color: #bee3f8;
+    }
+    html.dark .bg-green-100 {
+      background-color: #2c5282;
+    }
+    html.dark .text-green-800 {
+      color: #9ae6b4;
+    }
+    html.dark .text-green-900 {
+      color: #c6f6d5;
+    }
+    html.dark .bg-yellow-100 {
+      background-color: #43412a;
+    }
+    html.dark .text-yellow-800 {
+      color: #faf089;
+    }
+    html.dark .text-yellow-900 {
+      color: #fefcbf;
     }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-6 font-sans text-gray-800 transition-colors duration-300">
   <div class="max-w-7xl mx-auto">
-    <header class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-      <h1 class="text-4xl font-extrabold text-gray-800 dark:text-white text-center sm:text-left">AsafeBroker Dashboard</h1>
+    <header class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-extrabold text-gray-800 dark:text-white">AsafeBroker Dashboard</h1>
       <div class="flex items-center gap-4">
         <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300" aria-label="Alternar tema">
           <i data-lucide="sun" class="w-5 h-5 light-icon"></i>
@@ -142,194 +141,100 @@
       </div>
     </header>
 
-    <!-- Abas de Navegação -->
-    <nav class="mb-8">
-      <ul class="flex border-b border-gray-200 dark:border-gray-700">
-        <li class="-mb-px mr-1">
-          <button id="tabDeposits" class="bg-white dark:bg-gray-800 inline-block py-2 px-4 text-blue-600 dark:text-blue-400 font-semibold border-l border-t border-r rounded-t-lg border-blue-600 dark:border-blue-400 focus:outline-none transition-colors duration-200">Depósitos</button>
-        </li>
-        <li class="mr-1">
-          <button id="tabUserBalances" class="bg-gray-100 dark:bg-gray-700 inline-block py-2 px-4 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-t-lg focus:outline-none transition-colors duration-200">Saldos de Usuários</button>
-        </li>
-      </ul>
-    </nav>
+    <!-- Filtros -->
+    <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
+      <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Filtros de Depósitos</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 items-end"> <!-- Alterado para lg:grid-cols-6 -->
+        <div>
+          <label for="startDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data início</label>
+          <input type="date" id="startDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
+        </div>
+        <div>
+          <label for="endDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data fim</label>
+          <input type="date" id="endDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
+        </div>
+        <div>
+          <label for="orderBy" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Ordenar por</label>
+          <select id="orderBy" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+            <option value="amount">Valor</option>
+            <option value="createdAt">Data criação</option>
+            <option value="approvedAt">Data aprovação</option>
+            <option value="status">Status</option>
+          </select>
+        </div>
+        <div>
+          <label for="orderDirection" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Direção</label>
+          <select id="orderDirection" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+            <option value="DESC">Descendente</option>
+            <option value="ASC">Ascendente</option>
+          </select>
+        </div>
+        <div>
+          <label for="pageSize" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Registros por Página</label> <!-- Novo -->
+          <select id="pageSize" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+        <div class="flex gap-4">
+          <button id="btnFilter" class="w-full bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2">
+            <i data-lucide="filter" class="w-4 h-4"></i>
+            Filtrar
+          </button>
+          <button id="btnClearFilters" class="w-full bg-gray-400 text-white px-5 py-2 rounded-lg hover:bg-gray-500 transition-colors duration-200 flex items-center justify-center gap-2">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            Limpar
+          </button>
+        </div>
+      </div>
+    </section>
 
-    <!-- Conteúdo da Aba de Depósitos -->
-    <div id="depositsContent" class="tab-content">
-      <!-- Filtros -->
-      <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
-        <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Filtros de Depósitos</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 items-end">
-          <div>
-            <label for="startDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data início</label>
-            <input type="date" id="startDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
-          </div>
-          <div>
-            <label for="endDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data fim</label>
-            <input type="date" id="endDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
-          </div>
-          <div>
-            <label for="orderBy" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Ordenar por</label>
-            <select id="orderBy" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-              <option value="amount">Valor</option>
-              <option value="createdAt">Data criação</option>
-              <option value="approvedAt">Data aprovação</option>
-              <option value="status">Status</option>
-            </select>
-          </div>
-          <div>
-            <label for="orderDirection" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Direção</label>
-            <select id="orderDirection" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-              <option value="DESC">Descendente</option>
-              <option value="ASC">Ascendente</option>
-            </select>
-          </div>
-          <div>
-            <label for="pageSize" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Registros por Página</label>
-            <select id="pageSize" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-              <option value="10">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </select>
-          </div>
-          <div class="flex gap-4">
-            <button id="btnFilter" class="w-full bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2">
-              <i data-lucide="filter" class="w-4 h-4"></i>
-              Filtrar
-            </button>
-            <button id="btnClearFilters" class="w-full bg-gray-400 text-white px-5 py-2 rounded-lg hover:bg-gray-500 transition-colors duration-200 flex items-center justify-center gap-2">
-              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-              Limpar
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Big Cards -->
-      <section id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <!-- Skeletons para cards -->
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center skeleton-card">
-          <div class="h-6 w-3/4 mx-auto bg-gray-200 dark:bg-gray-700 rounded mb-2 skeleton"></div>
-          <div class="h-10 w-1/2 mx-auto bg-gray-200 dark:bg-gray-700 rounded skeleton"></div>
-        </div>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center skeleton-card">
-          <div class="h-6 w-3/4 mx-auto bg-gray-200 dark:bg-gray-700 rounded mb-2 skeleton"></div>
-          <div class="h-10 w-1/2 mx-auto bg-gray-200 dark:bg-gray-700 rounded skeleton"></div>
-        </div>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center skeleton-card">
-          <div class="h-6 w-3/4 mx-auto bg-gray-200 dark:bg-gray-700 rounded mb-2 skeleton"></div>
-          <div class="h-10 w-1/2 mx-auto bg-gray-200 dark:bg-gray-700 rounded skeleton"></div>
-        </div>
-      </section>
-
-      <!-- Gráfico -->
-      <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
-        <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Depósitos por Dia</h2>
-        <div class="h-64 w-full bg-gray-200 dark:bg-gray-700 rounded skeleton">
-          <canvas id="depositChart" height="100" class="hidden"></canvas>
-        </div>
-      </section>
-
-      <!-- Tabela -->
-      <section class="overflow-x-auto bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 transition-colors duration-300">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-100 dark:bg-gray-700">
-            <tr id="dataTableHead">
-              <!-- Cabeçalho da tabela será renderizado dinamicamente aqui -->
-            </tr>
-          </thead>
-          <tbody id="dataTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
-            <!-- Skeletons para linhas da tabela -->
-            <tr><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/3 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td></tr>
-            <tr><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/3 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td></tr>
-            <tr><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/3 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td></tr>
-            <tr><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/3 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td></tr>
-            <tr><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/3 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td></tr>
-          </tbody>
-        </table>
-        <div id="depositsEmptyState" class="hidden p-6 text-center text-gray-600 dark:text-gray-400">
-          <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-4"></i>
-          <p class="text-lg font-semibold">Nenhum depósito encontrado.</p>
-          <p class="text-sm">Tente ajustar os filtros de data ou ordenação.</p>
-        </div>
-      </section>
-
-      <!-- Paginação -->
-      <section class="flex justify-center gap-4 items-center mb-8">
-        <button id="prevPage" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200" disabled>
-          <i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Anterior
-        </button>
-        <span id="pageInfo" class="font-semibold text-gray-700 dark:text-gray-300"></span>
-        <button id="nextPage" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200" disabled>
-          Próximo <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>
-        </button>
-      </section>
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-[1001]">
+      <div class="flex flex-col items-center text-white">
+        <svg class="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="mt-3 text-lg">Carregando dados...</p>
+      </div>
     </div>
 
-    <!-- Conteúdo da Aba de Saldos de Usuários -->
-    <div id="userBalancesContent" class="tab-content hidden">
-      <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
-        <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Filtros de Saldos</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
-          <div>
-            <label for="topNUsers" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Top N Usuários</label>
-            <select id="topNUsers" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-              <option value="10">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </select>
-          </div>
-          <div>
-            <label for="balanceOrderBy" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Ordenar por</label>
-            <select id="balanceOrderBy" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-              <option value="balance">Saldo</option>
-              <option value="name">Nome</option>
-              <option value="email">E-mail</option>
-            </select>
-          </div>
-          <div>
-            <label for="balanceOrderDirection" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Direção</label>
-            <select id="balanceOrderDirection" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-              <option value="DESC">Descendente</option>
-              <option value="ASC">Ascendente</option>
-            </select>
-          </div>
-          <div class="col-span-full flex justify-end">
-            <button id="btnFilterBalances" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2">
-              <i data-lucide="filter" class="w-4 h-4"></i>
-              Filtrar Saldos
-            </button>
-          </div>
-        </div>
-      </section>
+    <!-- Big Cards -->
+    <section id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></section>
 
-      <!-- Tabela de Saldos de Usuários -->
-      <section class="overflow-x-auto bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 transition-colors duration-300">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-100 dark:bg-gray-700">
-            <tr id="userBalancesTableHead">
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nome</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">E-mail</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Saldo (US$)</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Último Login</th>
-            </tr>
-          </thead>
-          <tbody id="userBalancesTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
-            <!-- Skeletons para linhas da tabela de saldos -->
-            <tr><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td></tr>
-            <tr><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td></tr>
-            <tr><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td><td class="px-6 py-4 whitespace-nowrap"><div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div></td></tr>
-          </tbody>
-        </table>
-        <div id="userBalancesEmptyState" class="hidden p-6 text-center text-gray-600 dark:text-gray-400">
-          <i data-lucide="users" class="w-12 h-12 mx-auto mb-4"></i>
-          <p class="text-lg font-semibold">Nenhum usuário encontrado com saldo.</p>
-          <p class="text-sm">Tente ajustar os filtros.</p>
-        </div>
-      </section>
-    </div>
+    <!-- Gráfico -->
+    <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-8 transition-colors duration-300">
+      <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Depósitos por Dia</h2>
+      <canvas id="depositChart" height="100"></canvas>
+    </section>
+
+    <!-- Tabela -->
+    <section class="overflow-x-auto bg-white dark:bg-gray-800 rounded-xl shadow-md mb-6 transition-colors duration-300">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-100 dark:bg-gray-700">
+          <tr id="dataTableHead">
+            <!-- Cabeçalho da tabela será renderizado dinamicamente aqui -->
+          </tr>
+        </thead>
+        <tbody id="dataTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+          <!-- Corpo da tabela será renderizado dinamicamente aqui -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Paginação -->
+    <section class="flex justify-center gap-4 items-center mb-8">
+      <button id="prevPage" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200" disabled>
+        <i data-lucide="chevron-left" class="w-4 h-4 inline-block mr-1"></i> Anterior
+      </button>
+      <span id="pageInfo" class="font-semibold text-gray-700 dark:text-gray-300"></span>
+      <button id="nextPage" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors duration-200" disabled>
+        Próximo <i data-lucide="chevron-right" class="w-4 h-4 inline-block ml-1"></i>
+      </button>
+    </section>
   </div>
 
   <!-- Modal de Configuração de Colunas -->
@@ -359,65 +264,29 @@
     </div>
   </div>
 
-  <!-- Modal de Detalhes do Depósito -->
-  <div id="depositDetailModal" class="modal-overlay hidden">
-    <div class="modal-content dark:bg-gray-800 dark:text-white transition-colors duration-300">
-      <span class="modal-close-button" id="closeDepositDetailModalBtn">&times;</span>
-      <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Detalhes do Depósito</h2>
-      <div id="depositDetailContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
-        <!-- Detalhes serão preenchidos aqui -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Container -->
-  <div id="toastContainer" class="toast-container"></div>
-
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      lucide.createIcons(); // Inicializa Lucide Icons
+      lucide.createIcons();
 
-      // --- Elementos Comuns ---
-      const htmlElement = document.documentElement;
-      const loadingIndicator = document.getElementById("loadingIndicator");
-      console.log("Debug: loadingIndicator element:", loadingIndicator); // Adicionado para depuração
-      const toastContainer = document.getElementById("toastContainer");
-
-      // --- Elementos da Aba de Depósitos ---
-      const tabDeposits = document.getElementById("tabDeposits");
-      const depositsContent = document.getElementById("depositsContent");
       const startDateInput = document.getElementById("startDate");
       const endDateInput = document.getElementById("endDate");
       const orderBySelect = document.getElementById("orderBy");
       const orderDirectionSelect = document.getElementById("orderDirection");
-      const pageSizeSelect = document.getElementById("pageSize");
+      const pageSizeSelect = document.getElementById("pageSize"); // Novo
       const btnFilter = document.getElementById("btnFilter");
       const btnClearFilters = document.getElementById("btnClearFilters");
-      const summaryCards = document.getElementById("summaryCards");
-      const depositChartCanvas = document.getElementById("depositChart");
       const dataTableHead = document.getElementById("dataTableHead");
       const dataTableBody = document.getElementById("dataTableBody");
-      const depositsEmptyState = document.getElementById("depositsEmptyState");
+      const summaryCards = document.getElementById("summaryCards");
       const pageInfo = document.getElementById("pageInfo");
       const prevPageBtn = document.getElementById("prevPage");
       const nextPageBtn = document.getElementById("nextPage");
-      const ctx = depositChartCanvas.getContext("2d");
+      const ctx = document.getElementById("depositChart").getContext("2d");
+      const loadingIndicator = document.getElementById("loadingIndicator");
       let chartInstance;
       let currentPage = 1;
       let lastPage = 1;
 
-      // --- Elementos da Aba de Saldos de Usuários ---
-      const tabUserBalances = document.getElementById("tabUserBalances");
-      const userBalancesContent = document.getElementById("userBalancesContent");
-      const topNUsersSelect = document.getElementById("topNUsers");
-      const balanceOrderBySelect = document.getElementById("balanceOrderBy");
-      const balanceOrderDirectionSelect = document.getElementById("balanceOrderDirection");
-      const btnFilterBalances = document.getElementById("btnFilterBalances");
-      const userBalancesTableHead = document.getElementById("userBalancesTableHead");
-      const userBalancesTableBody = document.getElementById("userBalancesTableBody");
-      const userBalancesEmptyState = document.getElementById("userBalancesEmptyState");
-
-      // --- Elementos do Modal de Configuração de Colunas ---
       const btnConfigureColumns = document.getElementById("btnConfigureColumns");
       const columnConfigModal = document.getElementById("columnConfigModal");
       const closeModalBtn = document.getElementById("closeModalBtn");
@@ -426,128 +295,8 @@
       const selectedColumnsList = document.getElementById("selectedColumnsList");
       const availableColumnsCheckboxes = document.getElementById("availableColumnsCheckboxes");
 
-      // --- Elementos do Modal de Detalhes do Depósito ---
-      const depositDetailModal = document.getElementById("depositDetailModal");
-      const closeDepositDetailModalBtn = document.getElementById("closeDepositDetailModalBtn");
-      const depositDetailContent = document.getElementById("depositDetailContent");
-
-      // --- Variáveis de Estado ---
-      const defaultStartDate = "2025-01-01";
-      const today = new Date().toISOString().split("T")[0];
-
-      // --- Funções Utilitárias ---
-
-      function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-        toastContainer.appendChild(toast);
-        setTimeout(() => {
-          toast.remove();
-        }, 3000);
-      }
-
-    function showLoading(show) {
-      if (loadingIndicator) { // Verifica se o elemento existe
-        if (show) {
-          loadingIndicator.classList.remove('hidden');
-        } else {
-          loadingIndicator.classList.add('hidden');
-        }
-      } else {
-        console.warn("Elemento com ID 'loadingIndicator' não encontrado. O indicador de carregamento não será exibido.");
-      }
-
-      // Aplica skeletons aos cards
-      document.querySelectorAll('.skeleton-card').forEach(el => {
-        if (show) {
-          el.classList.add('skeleton');
-        } else {
-          el.classList.remove('skeleton');
-        }
-      });
-
-      // Lida com o skeleton do gráfico de depósitos
-      const depositChartEl = document.getElementById('depositChart');
-      // O skeleton do gráfico é o elemento irmão anterior ao canvas do gráfico
-      const depositChartSkeleton = depositChartEl ? depositChartEl.previousElementSibling : null;
-
-      if (depositChartEl && depositChartSkeleton) {
-        if (show) {
-          depositChartEl.classList.add('hidden');
-          depositChartSkeleton.classList.remove('hidden');
-        } else {
-          depositChartEl.classList.remove('hidden');
-          depositChartSkeleton.classList.add('hidden');
-        }
-      } else if (!depositChartEl) {
-        console.warn("Elemento com ID 'depositChart' não encontrado.");
-      } else if (!depositChartSkeleton) {
-        console.warn("Elemento skeleton para 'depositChart' não encontrado (esperado como irmão anterior).");
-      }
-
-      // Aplica skeletons às linhas da tabela de dados
-      document.querySelectorAll('#dataTableBody tr').forEach(el => {
-        if (show) {
-          el.classList.add('skeleton');
-        } else {
-          el.classList.remove('skeleton');
-        }
-      });
-
-      // Aplica skeletons às linhas da tabela de saldos de usuários
-      document.querySelectorAll('#userBalancesTableBody tr').forEach(el => {
-        if (show) {
-          el.classList.add('skeleton');
-        } else {
-          el.classList.remove('skeleton');
-        }
-      });
-    }
-
-      // Função auxiliar para acessar valores aninhados
-      function getNestedValue(obj, path) {
-        if (path === 'user.balance' && obj && obj.user && obj.user.wallets) {
-          const realWallet = obj.user.wallets.find(wallet => wallet.type === 'REAL');
-          return realWallet ? realWallet.balance : null;
-        }
-        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
-      }
-
-      // Função para formatar valores de célula
-      function formatCellValue(key, value) {
-        if (value === null || value === undefined) return '';
-
-        if (key === 'amount' && typeof value === 'number') {
-          return `US$ ${value.toFixed(2)}`;
-        }
-        if (key === 'amountFrom' && typeof value === 'number') {
-          return `R$ ${value.toFixed(2)}`;
-        }
-        if (key === 'user.balance' && typeof value === 'number') {
-          return `US$ ${value.toFixed(2)}`;
-        }
-        if (key.includes('At') && typeof value === 'string') {
-          try {
-            return new Date(value).toLocaleString('pt-BR');
-          } catch (e) {
-            return value;
-          }
-        }
-        if (key === 'status' && typeof value === 'string') {
-          return value.toLowerCase();
-        }
-        if (key === 'isInfluencer' || key === 'firstApprovedDeposit') {
-          return value ? 'Sim' : 'Não';
-        }
-        if (key === 'user.email' && typeof value === 'string') {
-          return `<a href="mailto:${value}" class="text-blue-600 dark:text-blue-400 underline">${value}</a>`;
-        }
-        return value;
-      }
-
-      // --- Dark Mode Toggle ---
       const themeToggle = document.getElementById("themeToggle");
+      const htmlElement = document.documentElement;
       const lightIcon = document.querySelector('.light-icon');
       const darkIcon = document.querySelector('.dark-icon');
 
@@ -583,31 +332,25 @@
         }
       });
 
-      // --- Abas de Navegação ---
-      function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-        document.querySelectorAll('nav button').forEach(button => {
-          button.classList.remove('border-l', 'border-t', 'border-r', 'border-blue-600', 'dark:border-blue-400', 'bg-white', 'dark:bg-gray-800', 'text-blue-600', 'dark:text-blue-400');
-          button.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300', 'hover:text-blue-600', 'dark:hover:text-blue-400', 'hover:bg-gray-200', 'dark:hover:bg-gray-600');
-        });
+      const defaultStartDate = "2025-01-01";
+      const today = new Date().toISOString().split("T")[0];
+      startDateInput.value = defaultStartDate;
+      endDateInput.value = today;
 
-        if (tabId === 'deposits') {
-          depositsContent.classList.remove('hidden');
-          tabDeposits.classList.add('border-l', 'border-t', 'border-r', 'border-blue-600', 'dark:border-blue-400', 'bg-white', 'dark:bg-gray-800', 'text-blue-600', 'dark:text-blue-400');
-          tabDeposits.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300', 'hover:text-blue-600', 'dark:hover:text-blue-400', 'hover:bg-gray-200', 'dark:hover:bg-gray-600');
-          updateDashboard(currentPage); // Recarrega dados de depósitos
-        } else if (tabId === 'userBalances') {
-          userBalancesContent.classList.remove('hidden');
-          tabUserBalances.classList.add('border-l', 'border-t', 'border-r', 'border-blue-600', 'dark:border-blue-400', 'bg-white', 'dark:bg-gray-800', 'text-blue-600', 'dark:text-blue-400');
-          tabUserBalances.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300', 'hover:text-blue-600', 'dark:hover:text-blue-400', 'hover:bg-gray-200', 'dark:hover:bg-gray-600');
-          updateUserBalances(); // Recarrega dados de saldos
-        }
-      }
+      // Inicializa pageSize do localStorage ou padrão
+      const savedPageSize = localStorage.getItem('pageSize') || '10';
+      pageSizeSelect.value = savedPageSize;
 
-      tabDeposits.addEventListener('click', () => switchTab('deposits'));
-      tabUserBalances.addEventListener('click', () => switchTab('userBalances'));
+      btnClearFilters.addEventListener("click", () => {
+        startDateInput.value = defaultStartDate;
+        endDateInput.value = today;
+        orderBySelect.value = "amount";
+        orderDirectionSelect.value = "DESC";
+        pageSizeSelect.value = '10'; // Reseta o pageSize também
+        localStorage.setItem('pageSize', '10'); // Salva o reset
+        updateDashboard(1);
+      });
 
-      // --- Configuração de Colunas (para Depósitos) ---
       const availableColumns = [
         { key: 'id', label: 'ID Depósito' },
         { key: 'tenantId', label: 'ID Tenant' },
@@ -640,8 +383,51 @@
       ];
 
       let selectedColumnKeys = JSON.parse(localStorage.getItem('selectedColumnKeys')) || [
-        'user.name', 'user.email', 'amount', 'approvedAt', 'status',
+        'user.name',
+        'user.email',
+        'amount',
+        'approvedAt',
+        'status',
       ];
+
+      function getNestedValue(obj, path) {
+        if (path === 'user.balance' && obj && obj.user && obj.user.wallets) {
+          const realWallet = obj.user.wallets.find(wallet => wallet.type === 'REAL');
+          return realWallet ? realWallet.balance : null;
+        }
+        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+      }
+
+      function formatCellValue(key, value) {
+        if (value === null || value === undefined) return '';
+
+        if (key === 'amount' && typeof value === 'number') {
+          return `US$ ${value.toFixed(2)}`;
+        }
+        if (key === 'amountFrom' && typeof value === 'number') {
+          return `R$ ${value.toFixed(2)}`;
+        }
+        if (key === 'user.balance' && typeof value === 'number') {
+          return `US$ ${value.toFixed(2)}`;
+        }
+        if (key.includes('At') && typeof value === 'string') {
+          try {
+            return new Date(value).toLocaleString('pt-BR');
+          } catch (e) {
+            return value;
+          }
+        }
+        if (key === 'status' && typeof value === 'string') {
+          return value.toLowerCase();
+        }
+        if (key === 'isInfluencer' || key === 'firstApprovedDeposit') {
+          return value ? 'Sim' : 'Não';
+        }
+        if (key === 'user.email' && typeof value === 'string') {
+          return `<a href="mailto:${value}" class="text-blue-600 dark:text-blue-400 underline">${value}</a>`;
+        }
+        return value;
+      }
 
       function renderColumnConfigModal() {
         selectedColumnsList.innerHTML = '';
@@ -730,46 +516,11 @@
         localStorage.setItem('selectedColumnKeys', JSON.stringify(selectedColumnKeys));
         updateDashboard(currentPage);
         columnConfigModal.classList.add("hidden");
-        showToast('Configurações de colunas salvas!', 'success');
       });
-
-      // --- Modal de Detalhes do Depósito ---
-      function openDepositDetailModal(item) {
-        depositDetailContent.innerHTML = `
-          <div class="col-span-full text-lg font-semibold mb-2">Informações do Depósito</div>
-          <div><strong>ID:</strong> ${item.id}</div>
-          <div><strong>Valor Depositado:</strong> US$ ${item.amount.toFixed(2)}</div>
-          <div><strong>Valor Origem:</strong> R$ ${item.amountFrom.toFixed(2)}</div>
-          <div><strong>Moeda Destino:</strong> ${item.currencyTo}</div>
-          <div><strong>Moeda Origem:</strong> ${item.currencyFrom}</div>
-          <div><strong>Método:</strong> ${item.method}</div>
-          <div><strong>Provedor:</strong> ${item.provider}</div>
-          <div><strong>Status:</strong> ${item.status.toLowerCase()}</div>
-          <div><strong>Data Aprovação:</strong> ${new Date(item.approvedAt).toLocaleString('pt-BR')}</div>
-          <div><strong>Data Criação:</strong> ${new Date(item.createdAt).toLocaleString('pt-BR')}</div>
-          <div><strong>Última Atualização:</strong> ${new Date(item.updatedAt).toLocaleString('pt-BR')}</div>
-
-          <div class="col-span-full text-lg font-semibold mt-4 mb-2">Informações do Usuário</div>
-          <div><strong>Nome:</strong> ${item.user.name}</div>
-          <div><strong>E-mail:</strong> <a href="mailto:${item.user.email}" class="text-blue-600 dark:text-blue-400 underline">${item.user.email}</a></div>
-          <div><strong>Nickname:</strong> ${item.user.nickname}</div>
-          <div><strong>Telefone:</strong> ${item.user.phoneCountryCode}${item.user.phone}</div>
-          <div><strong>País:</strong> ${item.user.country}</div>
-          <div><strong>Influenciador:</strong> ${item.isInfluencer ? 'Sim' : 'Não'}</div>
-          <div><strong>Último Login:</strong> ${new Date(item.user.lastLoginAt).toLocaleString('pt-BR')}</div>
-          <div><strong>Saldo Real:</strong> US$ ${getNestedValue(item, 'user.balance').toFixed(2)}</div>
-        `;
-        depositDetailModal.classList.remove('hidden');
-      }
-
-      closeDepositDetailModalBtn.addEventListener('click', () => {
-        depositDetailModal.classList.add('hidden');
-      });
-
-      // --- Funções de Dados e Renderização (Depósitos) ---
 
       async function fetchData(page = 1) {
-        showLoading(true);
+        loadingIndicator.classList.remove('hidden');
+
         const isoStartDate = new Date(startDateInput.value).toISOString();
         const endOfDay = new Date(endDateInput.value);
         endOfDay.setHours(23, 59, 59, 999);
@@ -777,7 +528,7 @@
 
         const params = new URLSearchParams({
           page,
-          pageSize: pageSizeSelect.value,
+          pageSize: pageSizeSelect.value, // Usando o valor do select
           isInfluencer: false,
           startDate: isoStartDate,
           endDate: isoEndDate,
@@ -792,33 +543,33 @@
             throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
           }
           const result = await response.json();
-          showToast('Dados de depósitos carregados!', 'success');
           return result;
         } catch (error) {
-          showToast('Erro ao carregar dados de depósitos: ' + error.message, 'error');
-          console.error("Erro ao buscar dados de depósitos:", error);
-          return { data: [], currentPage: 1, lastPage: 1, count: 0 };
+          alert("Erro ao carregar dados: " + error.message);
+          console.error("Erro ao buscar dados:", error);
+          return { data: [], currentPage: 1, lastPage: 1, count: 0, total_amount_all_pages: 0, max_deposit_all_pages: 0 }; // Retorna valores padrão para evitar erros
         } finally {
-          showLoading(false);
+          loadingIndicator.classList.add('hidden');
         }
       }
 
-      function renderSummaryCards(data) {
-        const total = data.reduce((acc, cur) => acc + cur.amount, 0);
-        const count = data.length;
-        const maxDeposit = data.reduce((acc, cur) => cur.amount > acc ? cur.amount : acc, 0);
+      // renderSummaryCards agora recebe o objeto 'result' completo
+      function renderSummaryCards(result) {
+        const totalAmount = result.total_amount_all_pages || 0; // Usando o total agregado
+        const totalCount = result.count || 0; // Usando o count total da API
+        const maxDeposit = result.max_deposit_all_pages || 0; // Usando o max agregado
 
         summaryCards.innerHTML = `
           <div class="bg-blue-100 dark:bg-blue-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">Total Depositado (página)</h3>
-            <p class="text-3xl font-bold mt-2 text-blue-900 dark:text-blue-100">US$ ${total.toFixed(2)}</p>
+            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">Total Depositado</h3>
+            <p class="text-3xl font-bold mt-2 text-blue-900 dark:text-blue-100">US$ ${totalAmount.toFixed(2)}</p>
           </div>
           <div class="bg-green-100 dark:bg-green-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">Depósitos (página)</h3>
-            <p class="text-3xl font-bold mt-2 text-green-900 dark:text-green-100">${count}</p>
+            <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">Número de Depósitos</h3>
+            <p class="text-3xl font-bold mt-2 text-green-900 dark:text-green-100">${totalCount}</p>
           </div>
           <div class="bg-yellow-100 dark:bg-yellow-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200">Maior Depósito (página)</h3>
+            <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200">Maior Depósito</h3>
             <p class="text-3xl font-bold mt-2 text-yellow-900 dark:text-yellow-100">US$ ${maxDeposit.toFixed(2)}</p>
           </div>
         `;
@@ -869,78 +620,28 @@
       }
 
       function renderTable(data) {
-        // Renderiza o cabeçalho da tabela
         const headerRow = document.createElement('tr');
         selectedColumnKeys.forEach(key => {
           const column = availableColumns.find(col => col.key === key);
           if (column) {
             const th = document.createElement('th');
             th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider';
-            th.innerHTML = `${column.label} <span class="sort-icon" data-key="${key}"></span>`; // Adiciona span para ícone de ordenação
+            th.textContent = column.label;
             headerRow.appendChild(th);
           }
         });
         dataTableHead.innerHTML = '';
         dataTableHead.appendChild(headerRow);
 
-        // Adiciona listeners para ordenação
-        document.querySelectorAll('#dataTableHead .sort-icon').forEach(icon => {
-          icon.addEventListener('click', (e) => {
-            const key = e.currentTarget.dataset.key;
-            if (orderBySelect.value === key) {
-              orderDirectionSelect.value = orderDirectionSelect.value === 'ASC' ? 'DESC' : 'ASC';
-            } else {
-              orderBySelect.value = key;
-              orderDirectionSelect.value = 'ASC';
-            }
-            updateDashboard(1);
-          });
-        });
-
-        // Renderiza o corpo da tabela
-        if (data.length === 0) {
-          dataTableBody.innerHTML = '';
-          depositsEmptyState.classList.remove('hidden');
-          depositChartCanvas.classList.add('hidden'); // Esconde o gráfico se não houver dados
-          depositChartCanvas.previousElementSibling.classList.remove('hidden'); // Mostra skeleton do gráfico
-        } else {
-          depositsEmptyState.classList.add('hidden');
-          depositChartCanvas.classList.remove('hidden'); // Mostra o gráfico
-          depositChartCanvas.previousElementSibling.classList.add('hidden'); // Esconde skeleton do gráfico
-
-          dataTableBody.innerHTML = data.map((item, rowIndex) => {
-            const rowClass = rowIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700';
-            const cells = selectedColumnKeys.map(key => {
-              const value = getNestedValue(item, key);
-              const formattedValue = formatCellValue(key, value);
-              return `<td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">${formattedValue}</td>`;
-            }).join('');
-            return `<tr class="${rowClass} hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition-colors duration-200" data-item='${JSON.stringify(item)}'>${cells}</tr>`;
+        dataTableBody.innerHTML = data.map((item, rowIndex) => {
+          const rowClass = rowIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700';
+          const cells = selectedColumnKeys.map(key => {
+            const value = getNestedValue(item, key);
+            const formattedValue = formatCellValue(key, value);
+            return `<td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">${formattedValue}</td>`;
           }).join('');
-
-          // Adiciona listeners para abrir o modal de detalhes
-          document.querySelectorAll('#dataTableBody tr').forEach(row => {
-            row.addEventListener('click', (e) => {
-              const item = JSON.parse(e.currentTarget.dataset.item);
-              openDepositDetailModal(item);
-            });
-          });
-        }
-        updateSortIcons();
-      }
-
-      function updateSortIcons() {
-        document.querySelectorAll('#dataTableHead .sort-icon').forEach(icon => {
-          const key = icon.dataset.key;
-          icon.innerHTML = ''; // Limpa ícones anteriores
-          if (orderBySelect.value === key) {
-            const iconElement = document.createElement('i');
-            iconElement.setAttribute('data-lucide', orderDirectionSelect.value === 'ASC' ? 'chevron-up' : 'chevron-down');
-            iconElement.classList.add('w-3', 'h-3', 'inline-block', 'ml-1');
-            icon.appendChild(iconElement);
-          }
-        });
-        lucide.createIcons(); // Re-renderiza ícones
+          return `<tr class="${rowClass} hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition-colors duration-200">${cells}</tr>`;
+        }).join('');
       }
 
       async function updateDashboard(page = 1) {
@@ -948,7 +649,7 @@
         const data = result.data || [];
         currentPage = result.currentPage || 1;
         lastPage = result.lastPage || 1;
-        renderSummaryCards(data);
+        renderSummaryCards(result); // Passa o objeto 'result' completo
         renderChart(data);
         renderTable(data);
         updatePaginationButtons();
@@ -960,61 +661,6 @@
         nextPageBtn.disabled = currentPage >= lastPage;
       }
 
-      // --- Funções de Dados e Renderização (Saldos de Usuários) ---
-
-      async function fetchUserBalances() {
-        showLoading(true);
-        const topN = topNUsersSelect.value;
-        const orderBy = balanceOrderBySelect.value;
-        const orderDirection = balanceOrderDirectionSelect.value;
-
-        const params = new URLSearchParams({
-          topN,
-          orderBy,
-          orderDirection,
-        });
-
-        try {
-          const response = await fetch('/user-balances?' + params.toString());
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
-          }
-          const result = await response.json();
-          showToast('Saldos de usuários carregados!', 'success');
-          return result;
-        } catch (error) {
-          showToast('Erro ao carregar saldos de usuários: ' + error.message, 'error');
-          console.error("Erro ao buscar saldos de usuários:", error);
-          return { data: [] };
-        } finally {
-          showLoading(false);
-        }
-      }
-
-      function renderUserBalancesTable(data) {
-        if (data.length === 0) {
-          userBalancesTableBody.innerHTML = '';
-          userBalancesEmptyState.classList.remove('hidden');
-        } else {
-          userBalancesEmptyState.classList.add('hidden');
-          userBalancesTableBody.innerHTML = data.map(user => `
-            <tr class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition-colors duration-200">
-              <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">${user.name || 'N/A'}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-blue-600 dark:text-blue-400 underline">${user.email || 'N/A'}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">US$ ${user.balance ? user.balance.toFixed(2) : '0.00'}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">${user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString('pt-BR') : 'N/A'}</td>
-            </tr>
-          `).join('');
-        }
-      }
-
-      async function updateUserBalances() {
-        const result = await fetchUserBalances();
-        renderUserBalancesTable(result.data || []);
-      }
-
-      // --- Event Listeners ---
       prevPageBtn.addEventListener("click", () => {
         if(currentPage > 1) {
           updateDashboard(currentPage - 1);
@@ -1028,23 +674,13 @@
       });
 
       btnFilter.addEventListener("click", () => updateDashboard(1));
+      // Adiciona listener para o select de pageSize
       pageSizeSelect.addEventListener("change", () => {
-        localStorage.setItem('pageSize', pageSizeSelect.value);
-        updateDashboard(1);
+        localStorage.setItem('pageSize', pageSizeSelect.value); // Salva a preferência
+        updateDashboard(1); // Reseta para a primeira página ao mudar o tamanho da página
       });
 
-      btnFilterBalances.addEventListener("click", () => updateUserBalances());
-
-      // --- Inicialização ---
-      startDateInput.value = defaultStartDate;
-      endDateInput.value = today;
-      pageSizeSelect.value = localStorage.getItem('pageSize') || '10';
-      topNUsersSelect.value = localStorage.getItem('topNUsers') || '10';
-      balanceOrderBySelect.value = localStorage.getItem('balanceOrderBy') || 'balance';
-      balanceOrderDirectionSelect.value = localStorage.getItem('balanceOrderDirection') || 'DESC';
-
-      // Carrega a aba padrão (Depósitos)
-      switchTab('deposits');
+      updateDashboard(1);
     });
   </script>
 </body>
