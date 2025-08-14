@@ -9,12 +9,76 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 API_URL = os.environ.get("API_URL", "https://broker-api.mybroker.dev/admin-token/deposits")
+WITHDRAWALS_API_URL = os.environ.get("WITHDRAWALS_API_URL", "https://broker-api.mybroker.dev/admin-token/withdrawals")
 API_TOKEN = os.environ.get("API_TOKEN", "o7efkbcw58")
 
 @app.route("/")
 def index():
     logging.info("Servindo index.html")
     return render_template("index.html")
+
+@app.route("/withdrawals")
+def withdrawals():
+    try:
+        page = int(request.args.get("page", 1))
+        page_size = int(request.args.get("pageSize", 25))
+        start_date = request.args.get("startDate")
+        end_date = request.args.get("endDate")
+        order_by = request.args.get("orderBy", "amount")
+        order_direction = request.args.get("orderDirection", "DESC")
+        status = request.args.get("status", "APPROVED")
+        search = request.args.get("search", "")
+    except ValueError as e:
+        logging.error(f"Erro de validação de parâmetro: {e}")
+        return jsonify({"error": "Parâmetros de requisição inválidos", "details": str(e)}), 400
+
+    params = {
+        "page": page,
+        "pageSize": page_size,
+        "startDate": start_date,
+        "endDate": end_date,
+        "orderBy": order_by,
+        "orderDirection": order_direction,
+        "status": status,
+    }
+
+    logging.info(f"Requisição recebida para /withdrawals com parâmetros: {params}")
+
+    try:
+        headers = {"api-token": API_TOKEN}
+        logging.info(f"Fazendo requisição para API externa de saques: {WITHDRAWALS_API_URL} com params: {params}")
+        response = requests.get(WITHDRAWALS_API_URL, headers=headers, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        # Aplicar filtro de pesquisa local se fornecido
+        if search and data.get("data"):
+            filtered_data = []
+            search_lower = search.lower()
+            for item in data["data"]:
+                user = item.get("user", {})
+                if (search_lower in user.get("name", "").lower() or 
+                    search_lower in user.get("email", "").lower() or
+                    search_lower in item.get("method", "").lower() or
+                    search_lower in item.get("provider", "").lower()):
+                    filtered_data.append(item)
+            data["data"] = filtered_data
+            data["count"] = len(filtered_data)
+        
+        logging.info("Dados da API externa de saques recebidos com sucesso.")
+        return jsonify(data)
+    except requests.exceptions.Timeout:
+        logging.error("Timeout ao conectar com a API externa de saques.")
+        return jsonify({"error": "A API externa demorou muito para responder."}), 504
+    except requests.exceptions.ConnectionError as e:
+        logging.error(f"Erro de conexão com a API externa de saques: {e}")
+        return jsonify({"error": "Não foi possível conectar à API externa."}), 503
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Erro ao buscar dados da API externa de saques: {e}, Resposta: {response.text if 'response' in locals() else 'N/A'}")
+        return jsonify({"error": "Erro ao buscar dados da API externa", "details": str(e)}), 500
+    except Exception as e:
+        logging.critical(f"Erro inesperado no endpoint /withdrawals: {e}")
+        return jsonify({"error": "Ocorreu um erro inesperado no servidor."}), 500
 
 @app.route("/data")
 def data():
