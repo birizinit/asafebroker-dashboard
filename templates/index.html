@@ -503,6 +503,26 @@
       withdrawalStartDate.value = defaultStartDate;
       withdrawalEndDate.value = today;
 
+      const userCache = new Map();
+
+      async function getUserData(userId) {
+        if (userCache.has(userId)) {
+          return userCache.get(userId);
+        }
+        
+        try {
+          const response = await fetch(`/users/${userId}`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const userData = await response.json();
+          userCache.set(userId, userData);
+          return userData;
+        } catch (error) {
+          console.error('Erro ao buscar usuário:', error);
+          return null;
+        }
+      }
 
       // Funções de API
       async function fetchData(endpoint, params) {
@@ -546,6 +566,43 @@
         currentPage = result.currentPage || 1;
         totalPages = result.lastPage || 1;
         totalRecords = result.count || 0;
+        
+        if (currentData.length > 0) {
+          // Buscar IDs únicos de usuários
+          const uniqueUserIds = [...new Set(currentData.map(w => w.userId).filter(id => id))];
+          
+          // Buscar dados dos usuários em paralelo
+          await Promise.all(
+            uniqueUserIds.map(userId => getUserData(userId))
+          );
+          
+          // Enriquecer dados dos saques
+          currentData.forEach(withdrawal => {
+            if (withdrawal.userId) {
+              const userData = userCache.get(withdrawal.userId);
+              if (userData) {
+                withdrawal.user = {
+                  name: userData.name || '-',
+                  email: userData.email || '-',
+                  phone: userData.phone || '-',
+                  country: userData.country || '-',
+                  balance: userData.balance || 0,
+                  nickname: userData.nickname || '-'
+                };
+              } else {
+                // Dados padrão caso não encontre o usuário
+                withdrawal.user = {
+                  name: '-',
+                  email: '-',
+                  phone: '-',
+                  country: '-',
+                  balance: 0,
+                  nickname: '-'
+                };
+              }
+            }
+          });
+        }
         
         renderWithdrawalSummaryCards();
         renderWithdrawalChart();
