@@ -10,12 +10,39 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 API_URL = os.environ.get("API_URL", "https://broker-api.mybroker.dev/admin-token/deposits")
 WITHDRAWALS_API_URL = os.environ.get("WITHDRAWALS_API_URL", "https://broker-api.mybroker.dev/admin-token/withdrawals")
+USERS_API_URL = os.environ.get("USERS_API_URL", "https://broker-api.mybroker.dev/admin-token/users")
 API_TOKEN = os.environ.get("API_TOKEN", "o7efkbcw58")
 
 @app.route("/")
 def index():
     logging.info("Servindo index.html")
     return render_template("index.html")
+
+@app.route("/users/<user_id>")
+def get_user(user_id):
+    try:
+        headers = {"api-token": API_TOKEN}
+        user_url = f"{USERS_API_URL}/{user_id}"
+        
+        logging.info(f"Fazendo requisição para API externa de usuário: {user_url}")
+        response = requests.get(user_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        logging.info(f"Dados do usuário {user_id} recebidos com sucesso.")
+        return jsonify(data)
+    except requests.exceptions.Timeout:
+        logging.error(f"Timeout ao conectar com a API externa para usuário {user_id}.")
+        return jsonify({"error": "A API externa demorou muito para responder."}), 504
+    except requests.exceptions.ConnectionError as e:
+        logging.error(f"Erro de conexão com a API externa para usuário {user_id}: {e}")
+        return jsonify({"error": "Não foi possível conectar à API externa."}), 503
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Erro ao buscar dados do usuário {user_id}: {e}")
+        return jsonify({"error": "Erro ao buscar dados do usuário", "details": str(e)}), 500
+    except Exception as e:
+        logging.critical(f"Erro inesperado no endpoint /users/{user_id}: {e}")
+        return jsonify({"error": "Ocorreu um erro inesperado no servidor."}), 500
 
 @app.route("/withdrawals")
 def withdrawals():
