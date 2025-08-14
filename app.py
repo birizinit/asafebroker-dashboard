@@ -26,7 +26,7 @@ def withdrawals():
         end_date = request.args.get("endDate")
         order_by = request.args.get("orderBy", "amount")
         order_direction = request.args.get("orderDirection", "DESC")
-        status = request.args.get("status", "APPROVED")
+        status = request.args.get("status")
         search = request.args.get("search", "")
     except ValueError as e:
         logging.error(f"Erro de validação de parâmetro: {e}")
@@ -39,8 +39,10 @@ def withdrawals():
         "endDate": end_date,
         "orderBy": order_by,
         "orderDirection": order_direction,
-        "status": status,
     }
+    
+    if status:
+        params["status"] = status
 
     logging.info(f"Requisição recebida para /withdrawals com parâmetros: {params}")
 
@@ -51,7 +53,6 @@ def withdrawals():
         response.raise_for_status()
         data = response.json()
         
-        # Aplicar filtro de pesquisa local se fornecido
         if search and data.get("data"):
             filtered_data = []
             search_lower = search.lower()
@@ -116,7 +117,6 @@ def data():
         response.raise_for_status()
         data = response.json()
         
-        # Aplicar filtro de pesquisa local se fornecido
         if search and data.get("data"):
             filtered_data = []
             search_lower = search.lower()
@@ -238,7 +238,6 @@ def user_balances():
 
     users_list = list(all_users_with_balances.values())
     
-    # Aplicar filtro de pesquisa
     if search:
         search_lower = search.lower()
         users_list = [user for user in users_list 
@@ -246,7 +245,6 @@ def user_balances():
                         search_lower in user.get("email", "").lower() or
                         search_lower in user.get("nickname", "").lower()]
 
-    # Ordenar os usuários
     if order_by == "user.balance":
         users_list.sort(key=lambda x: x.get("user.balance") if x.get("user.balance") is not None else (-float('inf') if order_direction == "ASC" else float('inf')),
                        reverse=(order_direction == "DESC"))
@@ -257,7 +255,6 @@ def user_balances():
 
     total_users = len(users_list)
     
-    # Aplicar paginação
     start_index = (page - 1) * page_size
     end_index = start_index + page_size
     paginated_users = users_list[start_index:end_index]
