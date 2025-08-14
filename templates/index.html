@@ -215,6 +215,15 @@
               <input type="date" id="withdrawalEndDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
             </div>
             <div>
+              <label for="withdrawalStatus" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Status</label>
+              <select id="withdrawalStatus" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                <option value="">Todos</option>
+                <option value="PENDING">Pendente</option>
+                <option value="APPROVED">Aprovado</option>
+                <option value="REJECTED">Rejeitado</option>
+              </select>
+            </div>
+            <div>
               <label for="withdrawalOrderBy" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Ordenar por</label>
               <select id="withdrawalOrderBy" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
                 <option value="amount">Valor</option>
@@ -526,7 +535,8 @@
           endDate: new Date(withdrawalEndDate.value + 'T23:59:59').toISOString(),
           orderBy: withdrawalOrderBy.value,
           orderDirection: withdrawalOrderDirection.value,
-          search: searchInput.value
+          search: searchInput.value,
+          status: document.getElementById('withdrawalStatus').value
         };
         
         const result = await fetchData('/withdrawals', params);
@@ -911,6 +921,7 @@
         withdrawalOrderBy.value = 'amount';
         withdrawalOrderDirection.value = 'DESC';
         searchInput.value = '';
+        document.getElementById('withdrawalStatus').value = '';
         loadWithdrawals(1);
       });
 
