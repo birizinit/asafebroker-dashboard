@@ -119,11 +119,16 @@
       </div>
 
       <!-- Tabs -->
+      <!-- Adicionando aba de Saques -->
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
         <div class="flex border-b border-gray-200 dark:border-gray-700">
           <button id="depositsTab" class="tab-button active flex-1 px-6 py-4 text-center font-medium rounded-tl-xl transition-colors duration-200 flex items-center justify-center gap-2">
             <i data-lucide="dollar-sign" class="w-4 h-4"></i>
             Depósitos
+          </button>
+          <button id="withdrawalsTab" class="tab-button flex-1 px-6 py-4 text-center font-medium transition-colors duration-200 flex items-center justify-center gap-2">
+            <i data-lucide="arrow-up-circle" class="w-4 h-4"></i>
+            Saques
           </button>
           <button id="usersTab" class="tab-button flex-1 px-6 py-4 text-center font-medium rounded-tr-xl transition-colors duration-200 flex items-center justify-center gap-2">
             <i data-lucide="wallet" class="w-4 h-4"></i>
@@ -187,6 +192,66 @@
           <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Depósitos por Dia</h2>
           <div class="h-80">
             <canvas id="depositChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Adicionando conteúdo da aba de Saques -->
+      <!-- Withdrawals Tab Content -->
+      <div id="withdrawalsContent" class="tab-content space-y-6">
+        <!-- Filtros para Saques -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white flex items-center gap-2">
+            <i data-lucide="filter" class="w-5 h-5"></i>
+            Filtros
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label for="withdrawalStartDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data Início</label>
+              <input type="date" id="withdrawalStartDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
+            </div>
+            <div>
+              <label for="withdrawalEndDate" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Data Fim</label>
+              <input type="date" id="withdrawalEndDate" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" />
+            </div>
+            <div>
+              <label for="withdrawalOrderBy" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Ordenar por</label>
+              <select id="withdrawalOrderBy" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                <option value="amount">Valor</option>
+                <option value="createdAt">Data Criação</option>
+                <option value="approvedAt">Data Aprovação</option>
+              </select>
+            </div>
+            <div>
+              <label for="withdrawalOrderDirection" class="block text-gray-700 dark:text-gray-300 font-medium mb-1">Direção</label>
+              <select id="withdrawalOrderDirection" class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                <option value="DESC">Descendente</option>
+                <option value="ASC">Ascendente</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-4">
+            <button id="applyWithdrawalFiltersBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2">
+              <i data-lucide="filter" class="w-4 h-4"></i>
+              Aplicar Filtros
+            </button>
+            <button id="clearWithdrawalFiltersBtn" class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition-colors duration-200 flex items-center gap-2">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              Limpar
+            </button>
+          </div>
+        </div>
+
+        <!-- Cards de Resumo para Saques -->
+        <div id="withdrawalSummaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Cards serão inseridos aqui dinamicamente -->
+        </div>
+
+        <!-- Gráfico de Saques -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Saques por Dia</h2>
+          <div class="h-80">
+            <canvas id="withdrawalChart"></canvas>
           </div>
         </div>
       </div>
@@ -341,6 +406,21 @@
         { key: "user.balance", label: "Saldo Atual", width: 120, visible: false, sortable: true, type: "currency" }
       ];
 
+      const defaultWithdrawalColumns = [
+        { key: "user.name", label: "Nome do Usuário", width: 200, visible: true, sortable: true, type: "text" },
+        { key: "user.email", label: "E-mail", width: 250, visible: true, sortable: true, type: "text" },
+        { key: "amount", label: "Valor (USD)", width: 120, visible: true, sortable: true, type: "currency" },
+        { key: "amountFrom", label: "Valor (BRL)", width: 120, visible: true, sortable: true, type: "currency" },
+        { key: "status", label: "Status", width: 100, visible: true, sortable: true, type: "status" },
+        { key: "method", label: "Método", width: 120, visible: true, sortable: true, type: "text" },
+        { key: "provider", label: "Provedor", width: 120, visible: true, sortable: true, type: "text" },
+        { key: "approvedAt", label: "Data Aprovação", width: 180, visible: true, sortable: true, type: "date" },
+        { key: "createdAt", label: "Data Criação", width: 180, visible: false, sortable: true, type: "date" },
+        { key: "user.phone", label: "Telefone", width: 150, visible: false, sortable: true, type: "text" },
+        { key: "user.country", label: "País", width: 100, visible: false, sortable: true, type: "text" },
+        { key: "user.balance", label: "Saldo Atual", width: 120, visible: false, sortable: true, type: "currency" }
+      ];
+
       const defaultUserColumns = [
         { key: "name", label: "Nome", width: 200, visible: true, sortable: true, type: "text" },
         { key: "email", label: "E-mail", width: 250, visible: true, sortable: true, type: "text" },
@@ -358,20 +438,25 @@
       let totalRecords = 0;
       let currentData = [];
       let chartInstance = null;
+      let withdrawalChartInstance = null;
       let depositColumns = [...defaultDepositColumns];
+      let withdrawalColumns = [...defaultWithdrawalColumns];
       let userColumns = [...defaultUserColumns];
       let isResizing = false;
       let resizeData = {};
 
       // Elementos DOM
       const depositsTab = document.getElementById('depositsTab');
+      const withdrawalsTab = document.getElementById('withdrawalsTab');
       const usersTab = document.getElementById('usersTab');
       const depositsContent = document.getElementById('depositsContent');
+      const withdrawalsContent = document.getElementById('withdrawalsContent');
       const usersContent = document.getElementById('usersContent');
       const loadingIndicator = document.getElementById('loadingIndicator');
       const tableHeader = document.getElementById('tableHeader');
       const tableBody = document.getElementById('tableBody');
       const summaryCards = document.getElementById('summaryCards');
+      const withdrawalSummaryCards = document.getElementById('withdrawalSummaryCards');
       const recordsInfo = document.getElementById('recordsInfo');
       const pageNumbers = document.getElementById('pageNumbers');
       const prevPageBtn = document.getElementById('prevPageBtn');
@@ -382,6 +467,10 @@
       const endDate = document.getElementById('endDate');
       const orderBy = document.getElementById('orderBy');
       const orderDirection = document.getElementById('orderDirection');
+      const withdrawalStartDate = document.getElementById('withdrawalStartDate');
+      const withdrawalEndDate = document.getElementById('withdrawalEndDate');
+      const withdrawalOrderBy = document.getElementById('withdrawalOrderBy');
+      const withdrawalOrderDirection = document.getElementById('withdrawalOrderDirection');
       const userPageSize = document.getElementById('userPageSize');
       const userOrderBy = document.getElementById('userOrderBy');
       const userOrderDirection = document.getElementById('userOrderDirection');
@@ -400,72 +489,9 @@
       const today = new Date().toISOString().split("T")[0];
       startDate.value = defaultStartDate;
       endDate.value = today;
+      withdrawalStartDate.value = defaultStartDate;
+      withdrawalEndDate.value = today;
 
-      // Tema
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.classList.add(savedTheme);
-      updateThemeIcons();
-
-      function updateThemeIcons() {
-        const lightIcon = document.querySelector('.light-icon');
-        const darkIcon = document.querySelector('.dark-icon');
-        if (document.documentElement.classList.contains('dark')) {
-          lightIcon.classList.add('hidden');
-          darkIcon.classList.remove('hidden');
-        } else {
-          lightIcon.classList.remove('hidden');
-          darkIcon.classList.add('hidden');
-        }
-      }
-
-      themeToggle.addEventListener('click', () => {
-        if (document.documentElement.classList.contains('light')) {
-          document.documentElement.classList.remove('light');
-          document.documentElement.classList.add('dark');
-          localStorage.setItem('theme', 'dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.classList.add('light');
-          localStorage.setItem('theme', 'light');
-        }
-        updateThemeIcons();
-        if (chartInstance) {
-          updateChartTheme();
-        }
-      });
-
-      // Funções utilitárias
-      function getNestedValue(obj, path) {
-        if (path === 'user.balance' && obj.wallets) {
-          const realWallet = obj.wallets.find(w => w.type === 'REAL');
-          return realWallet?.balance;
-        }
-        return path.split('.').reduce((acc, part) => acc?.[part], obj);
-      }
-
-      function formatValue(value, type, key) {
-        if (value === null || value === undefined) return '-';
-        
-        switch (type) {
-          case 'currency':
-            if (key.includes('amount') && !key.includes('From')) {
-              return `US$ ${Number(value).toFixed(2)}`;
-            }
-            return `R$ ${Number(value).toFixed(2)}`;
-          case 'date':
-            return new Date(value).toLocaleString('pt-BR');
-          case 'status':
-            const statusClass = value === 'APPROVED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">${value}</span>`;
-          case 'boolean':
-            return value ? 'Sim' : 'Não';
-          default:
-            if (key === 'user.email' || key === 'email') {
-              return `<a href="mailto:${value}" class="text-blue-600 dark:text-blue-400 underline">${value}</a>`;
-            }
-            return String(value);
-        }
-      }
 
       // Funções de API
       async function fetchData(endpoint, params) {
@@ -490,6 +516,30 @@
         } finally {
           loadingIndicator.classList.add('hidden');
         }
+      }
+
+      async function loadWithdrawals(page = 1) {
+        const params = {
+          page,
+          pageSize: pageSize.value,
+          startDate: new Date(withdrawalStartDate.value).toISOString(),
+          endDate: new Date(withdrawalEndDate.value + 'T23:59:59').toISOString(),
+          orderBy: withdrawalOrderBy.value,
+          orderDirection: withdrawalOrderDirection.value,
+          status: 'APPROVED',
+          search: searchInput.value
+        };
+        
+        const result = await fetchData('/withdrawals', params);
+        currentData = result.data || [];
+        currentPage = result.currentPage || 1;
+        totalPages = result.lastPage || 1;
+        totalRecords = result.count || 0;
+        
+        renderWithdrawalSummaryCards();
+        renderWithdrawalChart();
+        renderTable();
+        renderPagination();
       }
 
       async function loadDeposits(page = 1) {
@@ -536,6 +586,42 @@
       }
 
       // Funções de renderização
+      function renderWithdrawalSummaryCards() {
+        if (currentTab !== 'withdrawals') return;
+        
+        const total = currentData.reduce((acc, cur) => acc + (cur.amount || 0), 0);
+        const count = currentData.length;
+        const maxWithdrawal = currentData.reduce((acc, cur) => Math.max(acc, cur.amount || 0), 0);
+        
+        withdrawalSummaryCards.innerHTML = `
+          <div class="bg-red-100 dark:bg-red-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-lg font-semibold text-red-800 dark:text-red-200">Total Sacado</h3>
+              <i data-lucide="arrow-up-circle" class="w-5 h-5 text-red-600 dark:text-red-400"></i>
+            </div>
+            <p class="text-2xl font-bold text-red-900 dark:text-red-100">US$ ${total.toFixed(2)}</p>
+            <p class="text-xs text-red-700 dark:text-red-300 mt-1">Página atual</p>
+          </div>
+          <div class="bg-orange-100 dark:bg-orange-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-lg font-semibold text-orange-800 dark:text-orange-200">Número de Saques</h3>
+              <i data-lucide="trending-down" class="w-5 h-5 text-orange-600 dark:text-orange-400"></i>
+            </div>
+            <p class="text-2xl font-bold text-orange-900 dark:text-orange-100">${count}</p>
+            <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">Página atual</p>
+          </div>
+          <div class="bg-purple-100 dark:bg-purple-900 p-6 rounded-xl shadow-md text-center transition-colors duration-300">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-lg font-semibold text-purple-800 dark:text-purple-200">Maior Saque</h3>
+              <i data-lucide="trending-up" class="w-5 h-5 text-purple-600 dark:text-purple-400"></i>
+            </div>
+            <p class="text-2xl font-bold text-purple-900 dark:text-purple-100">US$ ${maxWithdrawal.toFixed(2)}</p>
+            <p class="text-xs text-purple-700 dark:text-purple-300 mt-1">Página atual</p>
+          </div>
+        `;
+        lucide.createIcons();
+      }
+
       function renderSummaryCards() {
         if (currentTab !== 'deposits') return;
         
@@ -570,6 +656,80 @@
           </div>
         `;
         lucide.createIcons();
+      }
+
+      function renderWithdrawalChart() {
+        if (currentTab !== 'withdrawals') return;
+        
+        const ctx = document.getElementById('withdrawalChart').getContext('2d');
+        
+        // Agrupar dados por dia
+        const grouped = currentData.reduce((acc, item) => {
+          if (item.approvedAt) {
+            const day = new Date(item.approvedAt).toLocaleDateString('pt-BR');
+            acc[day] = (acc[day] || 0) + (item.amount || 0);
+          }
+          return acc;
+        }, {});
+        
+        const labels = Object.keys(grouped);
+        const values = Object.values(grouped);
+        
+        if (withdrawalChartInstance) {
+          withdrawalChartInstance.destroy();
+        }
+        
+        withdrawalChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Saques por dia (US$)',
+              data: values,
+              borderColor: '#dc2626',
+              backgroundColor: 'rgba(220, 38, 38, 0.1)',
+              fill: true,
+              tension: 0.4,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              borderWidth: 3,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { 
+                display: true, 
+                labels: { 
+                  color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#333' 
+                } 
+              },
+              tooltip: { mode: 'index', intersect: false },
+            },
+            interaction: {
+              mode: 'nearest',
+              axis: 'x',
+              intersect: false
+            },
+            scales: {
+              y: { 
+                beginAtZero: true, 
+                ticks: { 
+                  callback: val => 'US$ ' + val,
+                  color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#333'
+                } 
+              },
+              x: { 
+                ticks: { 
+                  maxRotation: 45, 
+                  minRotation: 45,
+                  color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#333'
+                } 
+              }
+            }
+          }
+        });
       }
 
       function renderChart() {
@@ -646,20 +806,9 @@
         });
       }
 
-      function updateChartTheme() {
-        if (chartInstance) {
-          const isDark = document.documentElement.classList.contains('dark');
-          const textColor = isDark ? '#e2e8f0' : '#333';
-          
-          chartInstance.options.plugins.legend.labels.color = textColor;
-          chartInstance.options.scales.y.ticks.color = textColor;
-          chartInstance.options.scales.x.ticks.color = textColor;
-          chartInstance.update();
-        }
-      }
-
       function renderTable() {
-        const columns = currentTab === 'deposits' ? depositColumns : userColumns;
+        const columns = currentTab === 'deposits' ? depositColumns : 
+                       currentTab === 'withdrawals' ? withdrawalColumns : userColumns;
         const visibleColumns = columns.filter(col => col.visible);
         
         // Renderizar cabeçalho
@@ -710,47 +859,200 @@
         setupResizers();
       }
 
-      function renderPagination() {
-        // Info de registros
-        const start = (currentPage - 1) * parseInt(currentTab === 'deposits' ? pageSize.value : userPageSize.value) + 1;
-        const end = Math.min(currentPage * parseInt(currentTab === 'deposits' ? pageSize.value : userPageSize.value), totalRecords);
-        recordsInfo.textContent = `Mostrando ${start} a ${end} de ${totalRecords} registros`;
-        
-        // Botões de navegação
-        prevPageBtn.disabled = currentPage <= 1;
-        nextPageBtn.disabled = currentPage >= totalPages;
-        
-        // Números das páginas
-        const maxVisiblePages = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-        
-        if (endPage - startPage + 1 < maxVisiblePages) {
-          startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      // ... existing code for other functions ...
+
+      // Event Listeners
+      depositsTab.addEventListener('click', () => {
+        currentTab = 'deposits';
+        depositsTab.classList.add('active');
+        withdrawalsTab.classList.remove('active');
+        usersTab.classList.remove('active');
+        depositsContent.classList.add('active');
+        withdrawalsContent.classList.remove('active');
+        usersContent.classList.remove('active');
+        loadDeposits(1);
+      });
+
+      withdrawalsTab.addEventListener('click', () => {
+        currentTab = 'withdrawals';
+        withdrawalsTab.classList.add('active');
+        depositsTab.classList.remove('active');
+        usersTab.classList.remove('active');
+        withdrawalsContent.classList.add('active');
+        depositsContent.classList.remove('active');
+        usersContent.classList.remove('active');
+        loadWithdrawals(1);
+      });
+
+      usersTab.addEventListener('click', () => {
+        currentTab = 'users';
+        usersTab.classList.add('active');
+        depositsTab.classList.remove('active');
+        withdrawalsTab.classList.remove('active');
+        usersContent.classList.add('active');
+        depositsContent.classList.remove('active');
+        withdrawalsContent.classList.remove('active');
+        loadUserBalances(1);
+      });
+
+      document.getElementById('applyFiltersBtn').addEventListener('click', () => loadDeposits(1));
+      document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+        startDate.value = defaultStartDate;
+        endDate.value = today;
+        orderBy.value = 'amount';
+        orderDirection.value = 'DESC';
+        searchInput.value = '';
+        loadDeposits(1);
+      });
+
+      document.getElementById('applyWithdrawalFiltersBtn').addEventListener('click', () => loadWithdrawals(1));
+      document.getElementById('clearWithdrawalFiltersBtn').addEventListener('click', () => {
+        withdrawalStartDate.value = defaultStartDate;
+        withdrawalEndDate.value = today;
+        withdrawalOrderBy.value = 'amount';
+        withdrawalOrderDirection.value = 'DESC';
+        searchInput.value = '';
+        loadWithdrawals(1);
+      });
+
+      searchInput.addEventListener('input', () => {
+        if (currentTab === 'deposits') {
+          loadDeposits(1);
+        } else if (currentTab === 'withdrawals') {
+          loadWithdrawals(1);
+        } else {
+          loadUserBalances(1);
         }
-        
-        const pageButtons = [];
-        for (let i = startPage; i <= endPage; i++) {
-          const isActive = i === currentPage;
-          pageButtons.push(`
-            <button class="px-3 py-1 rounded ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'} transition-colors duration-200" 
-                    data-page="${i}">${i}</button>
-          `);
+      });
+
+      pageSize.addEventListener('change', () => {
+        if (currentTab === 'deposits') {
+          loadDeposits(1);
+        } else if (currentTab === 'withdrawals') {
+          loadWithdrawals(1);
         }
+      });
+      userPageSize.addEventListener('change', () => loadUserBalances(1));
+      userOrderBy.addEventListener('change', () => loadUserBalances(1));
+      userOrderDirection.addEventListener('change', () => loadUserBalances(1));
+
+      prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+          if (currentTab === 'deposits') {
+            loadDeposits(currentPage - 1);
+          } else if (currentTab === 'withdrawals') {
+            loadWithdrawals(currentPage - 1);
+          } else {
+            loadUserBalances(currentPage - 1);
+          }
+        }
+      });
+
+      nextPageBtn.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          if (currentTab === 'deposits') {
+            loadDeposits(currentPage + 1);
+          } else if (currentTab === 'withdrawals') {
+            loadWithdrawals(currentPage + 1);
+          } else {
+            loadUserBalances(currentPage + 1);
+          }
+        }
+      });
+
+      // ... existing code for theme, export, column config, etc ...
+
+      // Tema
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.classList.add(savedTheme);
+      updateThemeIcons();
+
+      function updateThemeIcons() {
+        const lightIcon = document.querySelector('.light-icon');
+        const darkIcon = document.querySelector('.dark-icon');
+        if (document.documentElement.classList.contains('dark')) {
+          lightIcon.classList.add('hidden');
+          darkIcon.classList.remove('hidden');
+        } else {
+          lightIcon.classList.remove('hidden');
+          darkIcon.classList.add('hidden');
+        }
+      }
+
+      themeToggle.addEventListener('click', () => {
+        if (document.documentElement.classList.contains('light')) {
+          document.documentElement.classList.remove('light');
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+          localStorage.setItem('theme', 'light');
+        }
+        updateThemeIcons();
+        if (chartInstance) {
+          updateChartTheme();
+        }
+        if (withdrawalChartInstance) {
+          updateWithdrawalChartTheme();
+        }
+      });
+
+      // Funções utilitárias
+      function getNestedValue(obj, path) {
+        if (path === 'user.balance' && obj.wallets) {
+          const realWallet = obj.wallets.find(w => w.type === 'REAL');
+          return realWallet?.balance;
+        }
+        return path.split('.').reduce((acc, part) => acc?.[part], obj);
+      }
+
+      function formatValue(value, type, key) {
+        if (value === null || value === undefined) return '-';
         
-        pageNumbers.innerHTML = pageButtons.join('');
-        
-        // Event listeners para os botões de página
-        pageNumbers.querySelectorAll('button').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const page = parseInt(btn.dataset.page);
-            if (currentTab === 'deposits') {
-              loadDeposits(page);
-            } else {
-              loadUserBalances(page);
+        switch (type) {
+          case 'currency':
+            if (key.includes('amount') && !key.includes('From')) {
+              return `US$ ${Number(value).toFixed(2)}`;
             }
-          });
-        });
+            return `R$ ${Number(value).toFixed(2)}`;
+          case 'date':
+            return new Date(value).toLocaleString('pt-BR');
+          case 'status':
+            const statusClass = value === 'APPROVED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">${value}</span>`;
+          case 'boolean':
+            return value ? 'Sim' : 'Não';
+          default:
+            if (key === 'user.email' || key === 'email') {
+              return `<a href="mailto:${value}" class="text-blue-600 dark:text-blue-400 underline">${value}</a>`;
+            }
+            return String(value);
+        }
+      }
+
+      function updateChartTheme() {
+        if (chartInstance) {
+          const isDark = document.documentElement.classList.contains('dark');
+          const textColor = isDark ? '#e2e8f0' : '#333';
+          
+          chartInstance.options.plugins.legend.labels.color = textColor;
+          chartInstance.options.scales.y.ticks.color = textColor;
+          chartInstance.options.scales.x.ticks.color = textColor;
+          chartInstance.update();
+        }
+      }
+
+      function updateWithdrawalChartTheme() {
+        if (withdrawalChartInstance) {
+          const isDark = document.documentElement.classList.contains('dark');
+          const textColor = isDark ? '#e2e8f0' : '#333';
+          
+          withdrawalChartInstance.options.plugins.legend.labels.color = textColor;
+          withdrawalChartInstance.options.scales.y.ticks.color = textColor;
+          withdrawalChartInstance.options.scales.x.ticks.color = textColor;
+          withdrawalChartInstance.update();
+        }
       }
 
       // Configuração de redimensionamento de colunas
@@ -764,7 +1066,8 @@
         e.preventDefault();
         isResizing = true;
         const columnKey = e.target.dataset.column;
-        const columns = currentTab === 'deposits' ? depositColumns : userColumns;
+        const columns = currentTab === 'deposits' ? depositColumns : 
+                       currentTab === 'withdrawals' ? withdrawalColumns : userColumns;
         const column = columns.find(col => col.key === columnKey);
         
         resizeData = {
@@ -783,7 +1086,8 @@
         const diff = e.clientX - resizeData.startX;
         const newWidth = Math.max(80, resizeData.startWidth + diff);
         
-        const columns = currentTab === 'deposits' ? depositColumns : userColumns;
+        const columns = currentTab === 'deposits' ? depositColumns : 
+                       currentTab === 'withdrawals' ? withdrawalColumns : userColumns;
         const columnIndex = columns.findIndex(col => col.key === resizeData.columnKey);
         if (columnIndex !== -1) {
           columns[columnIndex].width = newWidth;
@@ -813,7 +1117,8 @@
 
       // Configuração de colunas
       function openColumnConfig() {
-        const columns = currentTab === 'deposits' ? depositColumns : userColumns;
+        const columns = currentTab === 'deposits' ? depositColumns : 
+                       currentTab === 'withdrawals' ? withdrawalColumns : userColumns;
         renderColumnConfig(columns);
         columnConfigModal.classList.remove('hidden');
       }
@@ -857,7 +1162,8 @@
         document.querySelectorAll('.column-checkbox').forEach(checkbox => {
           checkbox.addEventListener('change', (e) => {
             const columnKey = e.target.dataset.column;
-            const columns = currentTab === 'deposits' ? depositColumns : userColumns;
+            const columns = currentTab === 'deposits' ? depositColumns : 
+                           currentTab === 'withdrawals' ? withdrawalColumns : userColumns;
             const column = columns.find(col => col.key === columnKey);
             if (column) {
               column.visible = e.target.checked;
@@ -871,7 +1177,8 @@
           input.addEventListener('change', (e) => {
             const columnKey = e.target.dataset.column;
             const newWidth = parseInt(e.target.value) || 100;
-            const columns = currentTab === 'deposits' ? depositColumns : userColumns;
+            const columns = currentTab === 'deposits' ? depositColumns : 
+                           currentTab === 'withdrawals' ? withdrawalColumns : userColumns;
             const column = columns.find(col => col.key === columnKey);
             if (column) {
               column.width = Math.max(80, newWidth);
@@ -883,7 +1190,8 @@
         document.querySelectorAll('button[data-action="hide"]').forEach(button => {
           button.addEventListener('click', (e) => {
             const columnKey = e.target.closest('button').dataset.column;
-            const columns = currentTab === 'deposits' ? depositColumns : userColumns;
+            const columns = currentTab === 'deposits' ? depositColumns : 
+                           currentTab === 'withdrawals' ? withdrawalColumns : userColumns;
             const column = columns.find(col => col.key === columnKey);
             if (column) {
               column.visible = false;
@@ -895,6 +1203,7 @@
 
       function saveColumnConfig() {
         localStorage.setItem('depositColumns', JSON.stringify(depositColumns));
+        localStorage.setItem('withdrawalColumns', JSON.stringify(withdrawalColumns));
         localStorage.setItem('userColumns', JSON.stringify(userColumns));
         renderTable();
         columnConfigModal.classList.add('hidden');
@@ -903,10 +1212,14 @@
       function cancelColumnConfig() {
         // Restaurar configurações salvas
         const savedDepositColumns = localStorage.getItem('depositColumns');
+        const savedWithdrawalColumns = localStorage.getItem('withdrawalColumns');
         const savedUserColumns = localStorage.getItem('userColumns');
         
         if (savedDepositColumns) {
           depositColumns = JSON.parse(savedDepositColumns);
+        }
+        if (savedWithdrawalColumns) {
+          withdrawalColumns = JSON.parse(savedWithdrawalColumns);
         }
         if (savedUserColumns) {
           userColumns = JSON.parse(savedUserColumns);
@@ -917,7 +1230,8 @@
 
       // Exportar dados
       function exportData() {
-        const columns = currentTab === 'deposits' ? depositColumns : userColumns;
+        const columns = currentTab === 'deposits' ? depositColumns : 
+                       currentTab === 'withdrawals' ? withdrawalColumns : userColumns;
         const visibleColumns = columns.filter(col => col.visible);
         
         const headers = visibleColumns.map(col => col.label).join(',');
@@ -938,86 +1252,14 @@
         URL.revokeObjectURL(url);
       }
 
-      // Event Listeners
-      depositsTab.addEventListener('click', () => {
-        currentTab = 'deposits';
-        depositsTab.classList.add('active');
-        usersTab.classList.remove('active');
-        depositsContent.classList.add('active');
-        usersContent.classList.remove('active');
-        loadDeposits(1);
-      });
-
-      usersTab.addEventListener('click', () => {
-        currentTab = 'users';
-        usersTab.classList.add('active');
-        depositsTab.classList.remove('active');
-        usersContent.classList.add('active');
-        depositsContent.classList.remove('active');
-        loadUserBalances(1);
-      });
-
-      document.getElementById('applyFiltersBtn').addEventListener('click', () => loadDeposits(1));
-      document.getElementById('clearFiltersBtn').addEventListener('click', () => {
-        startDate.value = defaultStartDate;
-        endDate.value = today;
-        orderBy.value = 'amount';
-        orderDirection.value = 'DESC';
-        searchInput.value = '';
-        loadDeposits(1);
-      });
-
-      searchInput.addEventListener('input', () => {
-        if (currentTab === 'deposits') {
-          loadDeposits(1);
-        } else {
-          loadUserBalances(1);
-        }
-      });
-
-      pageSize.addEventListener('change', () => loadDeposits(1));
-      userPageSize.addEventListener('change', () => loadUserBalances(1));
-      userOrderBy.addEventListener('change', () => loadUserBalances(1));
-      userOrderDirection.addEventListener('change', () => loadUserBalances(1));
-
-      prevPageBtn.addEventListener('click', () => {
-        if (currentPage > 1) {
-          if (currentTab === 'deposits') {
-            loadDeposits(currentPage - 1);
-          } else {
-            loadUserBalances(currentPage - 1);
-          }
-        }
-      });
-
-      nextPageBtn.addEventListener('click', () => {
-        if (currentPage < totalPages) {
-          if (currentTab === 'deposits') {
-            loadDeposits(currentPage + 1);
-          } else {
-            loadUserBalances(currentPage + 1);
-          }
-        }
-      });
-
-      exportBtn.addEventListener('click', exportData);
+      // Event listeners para modal e exportação
       columnConfigBtn.addEventListener('click', openColumnConfig);
       closeModalBtn.addEventListener('click', () => columnConfigModal.classList.add('hidden'));
       saveColumnConfigBtn.addEventListener('click', saveColumnConfig);
       cancelColumnConfigBtn.addEventListener('click', cancelColumnConfig);
+      exportBtn.addEventListener('click', exportData);
 
-      // Carregar configurações salvas
-      const savedDepositColumns = localStorage.getItem('depositColumns');
-      const savedUserColumns = localStorage.getItem('userColumns');
-      
-      if (savedDepositColumns) {
-        depositColumns = JSON.parse(savedDepositColumns);
-      }
-      if (savedUserColumns) {
-        userColumns = JSON.parse(savedUserColumns);
-      }
-
-      // Inicializar aplicação
+      // Carregar dados iniciais
       loadDeposits(1);
     });
   </script>
